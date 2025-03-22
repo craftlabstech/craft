@@ -72,13 +72,13 @@ export default function Home() {
           </Link>
           <div className="flex items-center gap-2 sm:gap-3">
             <Link
-              href="/signin"
+              href="/#"
               className="text-xs sm:text-sm font-medium text-gray-300 hover:text-white transition-colors"
             >
               Sign In
             </Link>
             <Link
-              href="/signup"
+              href="/#"
               className="text-center rounded-full bg-white px-3 sm:px-4 py-1 sm:py-1.5 text-xs sm:text-sm font-medium text-black transition-colors hover:bg-gray-200"
             >
               Sign Up
@@ -298,32 +298,32 @@ export default function Home() {
         <div className="flex gap-1 flex-wrap justify-center items-center text-xs text-gray-500 px-4">
           <div className="flex items-center flex-wrap justify-center">
             <Link
-              href="/pricing"
+              href="/#"
               className="hover:text-gray-300 transition-colors"
             >
               Pricing
             </Link>
             <span className="mx-1.5 text-gray-700">•</span>
             <Link
-              href="/enterprise"
+              href="/#"
               className="hover:text-gray-300 transition-colors"
             >
               Enterprise
             </Link>
             <span className="mx-1.5 text-gray-700">•</span>
-            <Link href="/docs" className="hover:text-gray-300 transition-colors">
+            <Link href="/#" className="hover:text-gray-300 transition-colors">
               Docs
             </Link>
             <span className="mx-1.5 text-gray-700">•</span>
             <Link
-              href="/legal"
+              href="/#"
               className="hover:text-gray-300 transition-colors"
             >
               Legal
             </Link>
             <span className="mx-1.5 text-gray-700">•</span>
             <Link
-              href="/privacy"
+              href="/#"
               className="hover:text-gray-300 transition-colors"
             >
               Privacy
