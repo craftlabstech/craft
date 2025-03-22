@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { useTheme } from "./theme-provider";
+// import { useTheme } from "./theme-provider";
 
 interface LoadingProps {
   size?: "sm" | "md" | "lg";
@@ -9,7 +9,7 @@ interface LoadingProps {
 }
 
 export function Loading({ size = "md", className = "" }: LoadingProps) {
-  const { theme } = useTheme();
+  // const { theme } = useTheme();
 
   // Define size in pixels based on the size prop
   const sizeInPixels = {
