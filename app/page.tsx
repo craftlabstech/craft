@@ -311,8 +311,8 @@ export default function Home() {
               Enterprise
             </Link>
             <span className="mx-1.5 text-gray-700">•</span>
-            <Link href="/faq" className="hover:text-gray-300 transition-colors">
-              FAQ
+            <Link href="/docs" className="hover:text-gray-300 transition-colors">
+              Docs
             </Link>
             <span className="mx-1.5 text-gray-700">•</span>
             <Link
@@ -330,14 +330,18 @@ export default function Home() {
             </Link>
             <span className="mx-1.5 text-gray-700">•</span>
             <Link
-              href="/discord"
+              target="_blank"
+              rel="noopener noreferrer"
+              href="https://discord.gg/jwT9PkQFsj"
               className="hover:text-gray-300 transition-colors"
             >
               Discord
             </Link>
             <span className="mx-1.5 text-gray-700">•</span>
             <Link
-              href="https://github.com/craftjs"
+              target="_blank"
+              rel="noopener noreferrer"
+              href="https://github.com/nextcrafter/craft.js"
               className="flex items-center hover:text-gray-300 transition-colors"
             >
               GitHub
