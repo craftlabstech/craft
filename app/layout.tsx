@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { Knewave } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import { ThemeProvider } from "@/components/theme-provider";
+import { SessionProvider } from "next-auth/react";
 
 export const metadata: Metadata = {
   title: "CraftJS - AI Website Generator",
@@ -24,15 +25,17 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${knewave.variable} font-geist antialiased`}>
-        <ThemeProvider
-          // attribute="class"
-          defaultTheme="system"
-          // enableSystem
-          // disableTransitionOnChange
-        >
-          {children}
-        </ThemeProvider>
-        <Analytics />
+        <SessionProvider>
+          <ThemeProvider
+            // attribute="class"
+            defaultTheme="system"
+            // enableSystem
+            // disableTransitionOnChange
+          >
+            {children}
+          </ThemeProvider>
+          <Analytics />
+        </SessionProvider>
       </body>
     </html>
   );
