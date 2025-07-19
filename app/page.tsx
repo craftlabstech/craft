@@ -415,7 +415,7 @@ const Footer = memo(function Footer() {
     { href: "https://discord.gg/jwT9PkQFsj", label: "Discord", external: true },
     { href: "https://x.com/craftjs_dev", label: "X", external: true },
     {
-      href: "https://github.com/orgs/craftjs-org",
+      href: "https://github.com/sudheerdotai/craft.js",
       label: "GitHub",
       external: true,
       icon: true,
