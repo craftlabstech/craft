@@ -117,14 +117,18 @@ export default function Home() {
         <div className="flex h-14 sm:h-16 items-center justify-between px-4 sm:px-6">
           {/* Logo */}
           <div className="flex items-center">
-            <Link href="/" className="flex items-center">
+            <Link href="/" className="flex items-center gap-0">
+              <NextImage
+                src="/craft-logo.svg"
+                alt="Craft.JS Logo"
+                width={32}
+                height={32}
+                className="w-8 h-8"
+                priority
+              />
               <div className="flex items-baseline">
-                <span className="tracking-wider font-knewave text-xl sm:text-2xl bg-gradient-to-r from-blue-500 to-purple-600 bg-clip-text text-transparent">
+                <span className="text-xl sm:text-2xl font-bold text-white">
                   Craft
-                </span>
-                <span className="text-white">.</span>
-                <span className="tracking-normal text-xs font-medium text-white">
-                  JS
                 </span>
               </div>
             </Link>
