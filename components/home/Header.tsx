@@ -19,6 +19,7 @@ export default function Header() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [theme, setTheme] = useState<"system" | "light" | "dark">("system");
   const [imageError, setImageError] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const settingsRef = useRef<HTMLDivElement>(null);
 
   const handleThemeChange = useCallback(
@@ -45,6 +46,17 @@ export default function Header() {
     setSettingsOpen(!settingsOpen);
   }, [settingsOpen]);
 
+  // Scroll detection for header background
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrolled = window.scrollY > 10;
+      setIsScrolled(scrolled);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   // Optimized click outside handler
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -65,7 +77,13 @@ export default function Header() {
   }, [settingsOpen]);
 
   return (
-    <header className="fixed top-0 z-50 w-full bg-black">
+    <header
+      className={`fixed top-0 z-50 w-full transition-all duration-300 ${
+        isScrolled
+          ? "bg-black/40 backdrop-blur-3xl border-b border-gray-800/50"
+          : "bg-transparent"
+      }`}
+    >
       <div className="flex h-14 sm:h-16 items-center justify-between px-4 sm:px-6">
         {/* Logo */}
         <div className="flex items-center">
@@ -92,19 +110,19 @@ export default function Header() {
             href="https://discord.gg/eaDJ4Hus7w"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-gray-300 hover:text-white transition-colors text-sm font-medium"
+            className="text-gray-300 hover:text-white transition-all duration-200 text-sm font-medium hover:bg-white/5 px-3 py-2 rounded-lg"
           >
             Community
           </Link>
           <Link
             href="/docs"
-            className="text-gray-300 hover:text-white transition-colors text-sm font-medium"
+            className="text-gray-300 hover:text-white transition-all duration-200 text-sm font-medium hover:bg-white/5 px-3 py-2 rounded-lg"
           >
             Docs
           </Link>
           <Link
             href="/showcase"
-            className="text-gray-300 hover:text-white transition-colors text-sm font-medium"
+            className="text-gray-300 hover:text-white transition-all duration-200 text-sm font-medium hover:bg-white/5 px-3 py-2 rounded-lg"
           >
             Showcase
           </Link>
@@ -112,7 +130,7 @@ export default function Header() {
             href="https://github.com/sudheerdotai/craftjs-dev"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-gray-300 hover:text-white transition-colors text-sm font-medium flex items-center gap-1"
+            className="text-gray-300 hover:text-white transition-all duration-200 text-sm font-medium flex items-center gap-1 hover:bg-white/5 px-3 py-2 rounded-lg"
           >
             GitHub
             <ExternalLink className="w-4 h-4 opacity-60" />
@@ -152,7 +170,7 @@ export default function Header() {
 
               {/* Settings popup */}
               {settingsOpen && (
-                <div className="absolute top-full right-0 mt-2 w-64 bg-gray-800 rounded-md shadow-lg border border-gray-700 z-10">
+                <div className="absolute top-full right-0 mt-2 w-64 bg-gray-900/95 backdrop-blur-md rounded-md shadow-2xl border border-gray-700/50 z-10">
                   {/* User profile info */}
                   <div className="p-4 border-b border-gray-700">
                     <div className="flex items-center">
@@ -282,7 +300,7 @@ export default function Header() {
             /* Sign in button in header when not logged in */
             <button
               onClick={handleSignIn}
-              className="rounded-lg bg-white px-4 py-1.5 text-md font-semibold text-black transition-colors hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="rounded-lg bg-white px-4 py-1.5 text-md font-semibold text-black transition-all duration-200 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 hover:scale-105 shadow-lg"
             >
               Log In
             </button>
