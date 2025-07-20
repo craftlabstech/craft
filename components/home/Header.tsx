@@ -80,7 +80,7 @@ export default function Header() {
     <header
       className={`fixed top-0 z-50 w-full transition-all duration-300 ${
         isScrolled
-          ? "bg-black/40 backdrop-blur-3xl border-b border-gray-800/50"
+          ? "bg-gray-950/60 backdrop-blur-3xl"
           : "bg-transparent"
       }`}
     >
