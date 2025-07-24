@@ -1,3 +1,6 @@
+## Description
+
+CraftJS lets you effortlessly craft web apps, landing pages, SaaS dashboards, and more with AI-powered code generation. Model-agnostic, open source, and pay-per-use. Select from top AI models (Claude, GPT, Gemini, and more) to generate production-ready code for your next project.
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started

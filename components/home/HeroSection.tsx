@@ -120,6 +120,8 @@ export default function HeroSection() {
   const [promptIndex, setPromptIndex] = useState(0);
   const [typedPrompt, setTypedPrompt] = useState("");
   const [typing, setTyping] = useState(true);
+  // Focus indicator state
+  const [isFocused, setIsFocused] = useState(false);
 
   useEffect(() => {
     let timeout: NodeJS.Timeout;
@@ -224,25 +226,31 @@ export default function HeroSection() {
         {/* Input Container */}
         <div className="w-full max-w-3xl mx-auto">
           <div className="relative">
-            <div className="relative rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+            <div
+              className={`relative rounded-xl bg-neutral-900/80 border backdrop-blur-sm transition-colors ${
+                isFocused ? "border-neutral-700" : "border-white/10"
+              } pb-12`}
+            >
               <textarea
                 ref={textareaRef}
                 placeholder={`Ask me to craft ${typedPrompt}${
                   typing ? "|" : ""
                 }`}
-                className="w-full bg-transparent py-4 px-4 pr-14 pb-12 text-white placeholder-gray-400 focus:outline-none text-base min-h-[80px] max-h-[300px] overflow-y-auto resize-none rounded-xl transition-colors"
+                className="w-full bg-transparent py-4 px-4 pr-14 text-white placeholder-gray-400 focus:outline-none text-base min-h-[80px] max-h-[300px] overflow-y-auto resize-none rounded-xl transition-colors"
                 onInput={autoResize}
                 onChange={autoResize}
                 aria-label="Ask me to craft"
                 autoComplete="off"
+                onFocus={() => setIsFocused(true)}
+                onBlur={() => setIsFocused(false)}
               />
 
               {/* Model Selector - Bottom Left */}
-              <div className="absolute left-2 bottom-2" data-dropdown>
+              <div className="absolute left-3 bottom-3" data-dropdown>
                 <div className="relative">
                   <button
                     onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                    className="flex items-center gap-2 px-3 py-1.5 bg-gray-800/80 border border-white/10 rounded-md hover:bg-gray-700/80 transition-colors"
+                    className="flex items-center gap-2 px-3 py-1.5 bg-neutral-800/90 border border-white/10 rounded-md hover:bg-neutral-700/80 transition-colors"
                     aria-label="Select AI Model"
                   >
                     <span className="text-white text-xs font-medium">
@@ -259,75 +267,88 @@ export default function HeroSection() {
                   {/* Dropdown Menu */}
                   {isDropdownOpen && (
                     <div
-                      className="absolute bottom-full left-0 mb-2 w-80 bg-gray-950 border border-white/10 rounded-2xl shadow-xl z-50 max-h-80 overflow-y-auto animate-dropdown minimal-scrollbar"
+                      className="absolute bottom-full left-0 mb-2 w-80 bg-neutral-900 border border-white/10 rounded-2xl shadow-xl z-50 max-h-80 overflow-hidden animate-dropdown minimal-scrollbar"
                       style={{
                         transition: "opacity 0.2s, transform 0.2s",
                         opacity: 1,
                         transform: "translateY(0)",
                       }}
                     >
-                      {Object.entries(modelCategories).map(
-                        ([categoryKey, category], idx, arr) => (
-                          <div key={categoryKey} className="px-3 pt-3 pb-2">
-                            <div className="px-1 pb-2 text-xs font-bold text-gray-300 uppercase tracking-widest">
-                              {category.label}
-                            </div>
-                            {category.models.map((model) => (
-                              <button
-                                key={model.id}
-                                onClick={() => handleModelSelect(model.id)}
-                                className={`w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 group transition-all duration-150
+                      {/* Hide scrollbar arrows for all .minimal-scrollbar elements */}
+                      <style>{`
+                        .minimal-scrollbar::-webkit-scrollbar-button {
+                          display: none !important;
+                          height: 0 !important;
+                        }
+                        .minimal-scrollbar {
+                          scrollbar-width: thin;
+                          scrollbar-color: #444 #222;
+                        }
+                      `}</style>
+                      <div className="max-h-80 overflow-y-auto rounded-2xl minimal-scrollbar">
+                        {Object.entries(modelCategories).map(
+                          ([categoryKey, category], idx, arr) => (
+                            <div key={categoryKey} className="px-3 pt-3 pb-2">
+                              <div className="px-1 pb-2 text-xs font-bold text-gray-300 uppercase tracking-widest">
+                                {category.label}
+                              </div>
+                              {category.models.map((model) => (
+                                <button
+                                  key={model.id}
+                                  onClick={() => handleModelSelect(model.id)}
+                                  className={`w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 group
                                   ${
                                     selectedModel === model.id
-                                      ? "bg-blue-400/20 border border-blue-400 shadow-md ring-2 ring-blue-300/30"
-                                      : "hover:bg-white/5 hover:scale-[1.01] active:bg-blue-400/10 border border-transparent"
+                                      ? "bg-neutral-800 border border-neutral-600 shadow-sm ring-1 ring-neutral-500/20"
+                                      : "hover:bg-neutral-800/70 hover:scale-[1.01] active:bg-neutral-700/80 border border-transparent"
                                   }
                                 `}
-                              >
-                                <div className="flex flex-col flex-1">
-                                  <span
-                                    className={`text-base font-semibold ${
-                                      selectedModel === model.id
-                                        ? "text-blue-200"
-                                        : "text-white"
-                                    }`}
-                                  >
-                                    {model.name}
-                                  </span>
-                                  <span className="text-gray-400 text-xs mt-0.5">
-                                    {model.description}
-                                  </span>
-                                </div>
-                                {selectedModel === model.id && (
-                                  <svg
-                                    className="w-5 h-5 text-blue-300 ml-1"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2.2"
-                                    viewBox="0 0 24 24"
-                                  >
-                                    <path
-                                      strokeLinecap="round"
-                                      strokeLinejoin="round"
-                                      d="M5 13l4 4L19 7"
-                                    />
-                                  </svg>
-                                )}
-                              </button>
-                            ))}
-                            {idx < arr.length - 1 && (
-                              <div className="my-3 mx-1 border-t border-white/10" />
-                            )}
-                          </div>
-                        )
-                      )}
+                                >
+                                  <div className="flex flex-col flex-1">
+                                    <span
+                                      className={`text-base font-semibold ${
+                                        selectedModel === model.id
+                                          ? "text-neutral-100"
+                                          : "text-white"
+                                      }`}
+                                    >
+                                      {model.name}
+                                    </span>
+                                    <span className="text-gray-400 text-xs mt-0.5">
+                                      {model.description}
+                                    </span>
+                                  </div>
+                                  {selectedModel === model.id && (
+                                    <svg
+                                      className="w-5 h-5 text-neutral-300 ml-1"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      strokeWidth="2.2"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path
+                                        strokeLinecap="round"
+                                        strokeLinejoin="round"
+                                        d="M5 13l4 4L19 7"
+                                      />
+                                    </svg>
+                                  )}
+                                </button>
+                              ))}
+                              {idx < arr.length - 1 && (
+                                <div className="my-3 mx-1 border-t border-white/10" />
+                              )}
+                            </div>
+                          )
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>
               </div>
 
               <button
-                className="absolute right-2 bottom-2 p-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white transition-colors duration-200"
+                className="absolute right-3 bottom-3 p-2 rounded-lg bg-blue-500 hover:bg-blue-600 text-white transition-colors duration-200"
                 aria-label="Submit"
               >
                 <ArrowRight size={16} />

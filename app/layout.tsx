@@ -7,8 +7,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { SessionProvider } from "next-auth/react";
 
 export const metadata: Metadata = {
-  title: "Craft",
-  description: "Craft full-stack web apps by chatting with AI",
+  title: "Craft.js - The JavaScript app builder",
+  description: "Create full-stack web apps by chatting with AI",
   icons: {
     icon: "/craft-logo.svg",
     shortcut: "/craft-logo.svg",

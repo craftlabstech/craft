@@ -78,16 +78,14 @@ export default function Header() {
 
   return (
     <header
-      className={`fixed top-0 z-50 w-full transition-all duration-300 ${
-        isScrolled
-          ? "bg-gray-950/60 backdrop-blur-3xl"
-          : "bg-transparent"
+      className={`fixed top-0 z-50 w-full transition-all duration-300 border-b border-neutral-800 ${
+        isScrolled ? "bg-neutral-950/80 backdrop-blur-xl" : "bg-transparent"
       }`}
     >
       <div className="flex h-14 sm:h-16 items-center justify-between px-4 sm:px-6">
         {/* Logo */}
         <div className="flex items-center">
-          <Link href="/" className="flex items-center gap-0">
+          <Link href="/" className="flex items-center gap-1">
             <NextImage
               src="/craft-logo.svg"
               alt="Craft.JS Logo"
@@ -97,8 +95,8 @@ export default function Header() {
               priority
             />
             <div className="flex items-baseline">
-              <span className="text-xl sm:text-2xl font-bold text-white">
-                Craft
+              <span className="text-md sm:text-lg tracking-wider font-base text-white">
+                Craft.js
               </span>
             </div>
           </Link>
@@ -127,7 +125,7 @@ export default function Header() {
             Showcase
           </Link>
           <Link
-            href="https://github.com/sudheerdotai/craftjs-dev"
+            href="https://github.com/sudheerdotai/craft.js"
             target="_blank"
             rel="noopener noreferrer"
             className="text-gray-300 hover:text-white transition-all duration-200 text-sm font-medium flex items-center gap-1 hover:bg-white/5 px-3 py-2 rounded-lg"
@@ -300,7 +298,7 @@ export default function Header() {
             /* Sign in button in header when not logged in */
             <button
               onClick={handleSignIn}
-              className="rounded-lg bg-white px-4 py-1.5 text-md font-semibold text-black transition-all duration-200 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-purple-500 hover:scale-105 shadow-lg"
+              className="rounded-md bg-neutral-100 px-4 py-2 text-sm font-medium text-black transition-all duration-200 hover:opacity-90 focus:outline-none shadow-lg cursor-pointer"
             >
               Log In
             </button>
