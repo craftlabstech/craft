@@ -40,7 +40,7 @@ export default function HeroSection() {
         {/* Main Heading with enhanced spacing and visual hierarchy */}
         <div className="text-center mb-8 sm:mb-12">
           <h1 className="mb-2 sm:mb-3 text-center text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight text-white flex items-center justify-center flex-wrap gap-3 leading-tight">
-            <span className="font-bold bg-gradient-to-r from-blue-400 via-purple-500 to-pink-500 bg-clip-text text-transparent">
+            <span className="font-bold">
               Craft
             </span>
             <span className="flex items-end">
@@ -55,7 +55,7 @@ export default function HeroSection() {
             </span>
           </h1>
 
-          <p className="text-center text-sm sm:text-base md:text-lg lg:text-xl text-gray-500 max-w-3xl mx-auto leading-relaxed font-medium">
+          <p className="text-center text-sm sm:text-base md:text-lg lg:text-xl text-gray-400 max-w-3xl mx-auto leading-relaxed font-medium">
             Build apps and websites by chatting with AI
           </p>
         </div>

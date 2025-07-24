@@ -105,7 +105,7 @@ export default function Header() {
         </div>
 
         {/* Navigation Options */}
-        <nav className="hidden md:flex items-center space-x-8">
+        <nav className="hidden md:flex items-center space-x-2">
           <Link
             href="https://discord.gg/eaDJ4Hus7w"
             target="_blank"
