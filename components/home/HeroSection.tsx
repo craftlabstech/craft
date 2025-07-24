@@ -49,6 +49,11 @@ const modelCategories = {
         description: "Latest multimodal model with coding expertise",
       },
       {
+        id: "gpt-4.1",
+        name: "GPT-4.1",
+        description: "Highly capable model for advanced coding and reasoning",
+      },
+      {
         id: "o1-pro",
         name: "o1 Pro",
         description: "Advanced reasoning for complex programming problems",
@@ -101,6 +106,60 @@ export default function HeroSection() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [selectedModel, setSelectedModel] = useState("best");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  // Animated prompt suggestions
+  const promptSuggestions = [
+    "a web app that...",
+    "a landing page for...",
+    "an AI chatbot that...",
+    "a portfolio site for...",
+    "a SaaS dashboard that...",
+    "a blog platform for...",
+    "an e-commerce store that...",
+    "a mobile app for...",
+  ];
+  const [promptIndex, setPromptIndex] = useState(0);
+  const [typedPrompt, setTypedPrompt] = useState("");
+  const [typing, setTyping] = useState(true);
+
+  useEffect(() => {
+    let timeout: NodeJS.Timeout;
+    let charIndex = 0;
+    let isDeleting = false;
+    setTypedPrompt("");
+    setTyping(true);
+
+    function typewriter() {
+      const currentPrompt = promptSuggestions[promptIndex];
+      if (!isDeleting) {
+        if (charIndex <= currentPrompt.length) {
+          setTypedPrompt(currentPrompt.slice(0, charIndex));
+          charIndex++;
+          timeout = setTimeout(typewriter, 40);
+        } else {
+          setTyping(false);
+          timeout = setTimeout(() => {
+            isDeleting = true;
+            setTyping(true);
+            typewriter();
+          }, 1200);
+        }
+      } else {
+        if (charIndex >= 0) {
+          setTypedPrompt(currentPrompt.slice(0, charIndex));
+          charIndex--;
+          if (charIndex >= 0) {
+            timeout = setTimeout(typewriter, 24);
+          } else {
+            setTyping(true);
+            setPromptIndex((prev) => (prev + 1) % promptSuggestions.length);
+          }
+        }
+      }
+    }
+    typewriter();
+    return () => clearTimeout(timeout);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [promptIndex]);
 
   // Auto-resize function - optimized with useCallback
   const autoResize = useCallback(() => {
@@ -168,11 +227,14 @@ export default function HeroSection() {
             <div className="relative rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
               <textarea
                 ref={textareaRef}
-                placeholder="Describe what you want to build..."
-                className="w-full bg-transparent py-4 px-4 pr-14 pb-12 text-white placeholder-gray-400 focus:outline-none text-base min-h-[80px] max-h-[300px] overflow-y-auto resize-none rounded-xl"
+                placeholder={`Ask me to craft ${typedPrompt}${
+                  typing ? "|" : ""
+                }`}
+                className="w-full bg-transparent py-4 px-4 pr-14 pb-12 text-white placeholder-gray-400 focus:outline-none text-base min-h-[80px] max-h-[300px] overflow-y-auto resize-none rounded-xl transition-colors"
                 onInput={autoResize}
                 onChange={autoResize}
-                aria-label="Describe what you want to build"
+                aria-label="Ask me to craft"
+                autoComplete="off"
               />
 
               {/* Model Selector - Bottom Left */}
@@ -196,33 +258,66 @@ export default function HeroSection() {
 
                   {/* Dropdown Menu */}
                   {isDropdownOpen && (
-                    <div className="absolute bottom-full left-0 mb-2 w-80 bg-gray-900/95 border border-white/10 rounded-lg backdrop-blur-sm shadow-xl z-50 max-h-80 overflow-y-auto scrollbar-thin scrollbar-track-gray-800 scrollbar-thumb-gray-600">
+                    <div
+                      className="absolute bottom-full left-0 mb-2 w-80 bg-gray-950 border border-white/10 rounded-2xl shadow-xl z-50 max-h-80 overflow-y-auto animate-dropdown minimal-scrollbar"
+                      style={{
+                        transition: "opacity 0.2s, transform 0.2s",
+                        opacity: 1,
+                        transform: "translateY(0)",
+                      }}
+                    >
                       {Object.entries(modelCategories).map(
-                        ([categoryKey, category]) => (
-                          <div key={categoryKey} className="p-2">
-                            <div className="px-3 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                        ([categoryKey, category], idx, arr) => (
+                          <div key={categoryKey} className="px-3 pt-3 pb-2">
+                            <div className="px-1 pb-2 text-xs font-bold text-gray-300 uppercase tracking-widest">
                               {category.label}
                             </div>
                             {category.models.map((model) => (
                               <button
                                 key={model.id}
                                 onClick={() => handleModelSelect(model.id)}
-                                className={`w-full text-left px-3 py-2 rounded-md hover:bg-white/10 transition-colors ${
-                                  selectedModel === model.id
-                                    ? "bg-blue-500/20 border-l-2 border-blue-500"
-                                    : ""
-                                }`}
+                                className={`w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 group transition-all duration-150
+                                  ${
+                                    selectedModel === model.id
+                                      ? "bg-blue-400/20 border border-blue-400 shadow-md ring-2 ring-blue-300/30"
+                                      : "hover:bg-white/5 hover:scale-[1.01] active:bg-blue-400/10 border border-transparent"
+                                  }
+                                `}
                               >
-                                <div className="flex flex-col">
-                                  <span className="text-white text-sm font-medium">
+                                <div className="flex flex-col flex-1">
+                                  <span
+                                    className={`text-base font-semibold ${
+                                      selectedModel === model.id
+                                        ? "text-blue-200"
+                                        : "text-white"
+                                    }`}
+                                  >
                                     {model.name}
                                   </span>
-                                  <span className="text-gray-400 text-xs">
+                                  <span className="text-gray-400 text-xs mt-0.5">
                                     {model.description}
                                   </span>
                                 </div>
+                                {selectedModel === model.id && (
+                                  <svg
+                                    className="w-5 h-5 text-blue-300 ml-1"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    strokeWidth="2.2"
+                                    viewBox="0 0 24 24"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      d="M5 13l4 4L19 7"
+                                    />
+                                  </svg>
+                                )}
                               </button>
                             ))}
+                            {idx < arr.length - 1 && (
+                              <div className="my-3 mx-1 border-t border-white/10" />
+                            )}
                           </div>
                         )
                       )}

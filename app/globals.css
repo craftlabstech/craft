@@ -1,3 +1,38 @@
+/* Unified Minimal Scrollbar Styles for the Whole App */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+  background: #18181b;
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 6px;
+  transition: background 0.2s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+::-webkit-scrollbar-corner {
+  background: #18181b;
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #444 #18181b;
+}
+/* Hide scrollbar utility for dropdowns and custom scroll areas */
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
 @import "tailwindcss";
 
 @keyframes pulse {
