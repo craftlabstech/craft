@@ -27,7 +27,7 @@ export default function HomeLayout() {
       </div>
 
       {/* Responsive Footer - with relative positioning */}
-      <div className="relative z-10">
+      <div className="relative">
         <Footer />
       </div>
     </div>
