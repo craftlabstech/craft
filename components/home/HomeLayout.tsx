@@ -1,13 +1,13 @@
 "use client";
 
 import React from "react";
-import { useSession } from "next-auth/react";
+// import { useSession } from "next-auth/react";
 import Header from "./Header";
 import HeroSection from "./HeroSection";
 import Footer from "./Footer";
 
 export default function HomeLayout() {
-  const { data: session } = useSession();
+  // const { data: session } = useSession();
 
   return (
     <div className="relative flex min-h-screen flex-col text-white overflow-hidden">

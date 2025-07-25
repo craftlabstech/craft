@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useEffect, useCallback, useState } from "react";
-import { ArrowRight, ChevronDown, Paperclip, Sparkles } from "lucide-react";
+import { ArrowRight, Paperclip, Sparkles } from "lucide-react";
 
 // Model configuration
 const modelCategories = {
@@ -142,7 +142,7 @@ export default function HeroSection() {
       const validFiles: File[] = [];
       const previews: { [key: number]: string } = {};
       let rejected = false;
-      files.forEach((file, idx) => {
+files.forEach((file) => {
         if (file.size <= maxSize) {
           validFiles.push(file);
           if (file.type.startsWith("image/")) {
