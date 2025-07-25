@@ -7,8 +7,13 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { SessionProvider } from "next-auth/react";
 
 export const metadata: Metadata = {
-  title: "CraftJS - AI Website Generator",
-  description: "Create beautiful websites with AI in seconds",
+  title: "Craft.js - The JavaScript app builder",
+  description: "Create full-stack web apps by chatting with AI",
+  icons: {
+    icon: "/craft-logo.svg",
+    shortcut: "/craft-logo.svg",
+    apple: "/craft-logo.svg",
+  },
 };
 
 const knewave = Knewave({
