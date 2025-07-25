@@ -142,7 +142,7 @@ export default function HeroSection() {
       const validFiles: File[] = [];
       const previews: { [key: number]: string } = {};
       let rejected = false;
-files.forEach((file) => {
+      files.forEach((file) => {
         if (file.size <= maxSize) {
           validFiles.push(file);
           if (file.type.startsWith("image/")) {
@@ -535,17 +535,7 @@ files.forEach((file) => {
                           <h2 className="text-lg font-bold text-white mb-4 text-center">
                             Select AI Model
                           </h2>
-                          {/* Hide scrollbar arrows for all .minimal-scrollbar elements */}
-                          <style>{`
-                            .minimal-scrollbar::-webkit-scrollbar-button {
-                              display: none !important;
-                              height: 0 !important;
-                            }
-                            .minimal-scrollbar {
-                              scrollbar-width: thin;
-                              scrollbar-color: #444 #222;
-                            }
-                          `}</style>
+                          {/* Hide scrollbar arrows for all .minimal-scrollbar elements: now in globals.css */}
                           {Object.entries(modelCategories).map(
                             ([categoryKey, category], idx, arr) => (
                               <div key={categoryKey} className="mb-4">

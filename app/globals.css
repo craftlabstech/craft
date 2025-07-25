@@ -1,3 +1,12 @@
+/* Hide scrollbar arrows for all .minimal-scrollbar elements */
+.minimal-scrollbar::-webkit-scrollbar-button {
+  display: none !important;
+  height: 0 !important;
+}
+.minimal-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #444 #222;
+}
 /* Unified Minimal Scrollbar Styles for the Whole App */
 ::-webkit-scrollbar {
   width: 6px;
