@@ -145,7 +145,6 @@ export default function HeroSection() {
       const allFiles = [...attachedFiles, ...newFiles];
 
       const validFiles: File[] = [];
-      const previews: { [key: number]: string } = { ...filePreviews };
       let rejectedSize = false;
       let rejectedCount = false;
       let nonImageRejected = false;
@@ -171,12 +170,6 @@ export default function HeroSection() {
         if (totalSize + file.size <= maxTotalSize) {
           validFiles.push(file);
           totalSize += file.size;
-
-          // Create preview for new files only
-          if (!attachedFiles.includes(file)) {
-            const url = URL.createObjectURL(file);
-            previews[validFiles.length - 1] = url;
-          }
         } else {
           rejectedSize = true;
         }
@@ -215,8 +208,23 @@ export default function HeroSection() {
         setShowFileErrorModal(false);
       }
 
+      // Clean up old preview URLs before setting new ones
+      Object.values(filePreviews).forEach((url) => {
+        URL.revokeObjectURL(url);
+      });
+
+      // Create new previews for all valid files
+      const newPreviews: { [key: number]: string } = {};
+      validFiles.forEach((file, index) => {
+        const url = URL.createObjectURL(file);
+        newPreviews[index] = url;
+      });
+
       setAttachedFiles(validFiles);
-      setFilePreviews(previews);
+      setFilePreviews(newPreviews);
+
+      // Reset the file input to allow re-selecting the same file
+      e.target.value = "";
     }
   };
 
@@ -241,11 +249,7 @@ export default function HeroSection() {
       Object.keys(newPreviews).forEach((key) => {
         const oldIndex = Number(key);
         if (oldIndex !== idx) {
-          if (oldIndex > idx) {
-            reIndexed[newIndex] = newPreviews[oldIndex];
-          } else {
-            reIndexed[newIndex] = newPreviews[oldIndex];
-          }
+          reIndexed[newIndex] = newPreviews[oldIndex];
           newIndex++;
         }
       });
@@ -350,6 +354,16 @@ export default function HeroSection() {
     }
   }, [autoResize]);
 
+  // Cleanup preview URLs on component unmount
+  useEffect(() => {
+    return () => {
+      // Clean up all preview URLs when component unmounts
+      Object.values(filePreviews).forEach((url) => {
+        URL.revokeObjectURL(url);
+      });
+    };
+  }, [filePreviews]);
+
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -396,7 +410,7 @@ export default function HeroSection() {
                         <img
                           src={filePreviews[idx]}
                           alt={file.name}
-                          className="w-16 h-16 object-cover rounded-lg border border-white/10 transition-all duration-200 group-hover:border-white/20"
+                          className="w-16 h-16 object-cover rounded-xl border border-white/10 transition-all duration-200 group-hover:border-white/20"
                         />
                         {/* Remove button - appears on hover */}
                         <button
