@@ -466,11 +466,7 @@ export default function HeroSection() {
                             key={model.id}
                             onClick={() => handleModelSelect(model.id)}
                             className={`w-full text-left px-4 py-3 dropdown-item flex items-center gap-3 group transition-colors duration-200
-                              ${
-                                selectedModel === model.id
-                                  ? "selected"
-                                  : ""
-                              }
+                              ${selectedModel === model.id ? "selected" : ""}
                             `}
                           >
                             <div className="flex flex-col flex-1">

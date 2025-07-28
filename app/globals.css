@@ -204,7 +204,8 @@
   background-color: #ffffff;
   border: 1px solid #e5e5e5;
   border-radius: 12px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
 .dropdown-item {
@@ -263,24 +264,24 @@
     background-color: #000000;
     border-color: #333333;
   }
-  
+
   .dropdown-item {
     color: #ffffff;
   }
-  
+
   .dropdown-item:hover {
     background-color: #1a1a1a;
   }
-  
+
   .dropdown-item.selected {
     background-color: #2a2a2a;
     border-left-color: #ffffff;
   }
-  
+
   .dropdown-item-description {
     color: #999999;
   }
-  
+
   .dropdown-checkmark {
     color: #ffffff;
   }
