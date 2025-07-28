@@ -497,9 +497,32 @@ export default function HeroSection() {
               />
 
               <div className="flex flex-row justify-between items-center gap-2 ">
-                {/* Model Selector & File Attach Button */}
+                {/* File Attach Button */}
                 <div className="flex items-center gap-2">
-                  {/* Model Selector - Bottom Left */}
+                  {/* Attach File */}
+                  <label
+                    htmlFor="file-upload"
+                    className="gap-1.5 px-3 py-1.5 rounded-full bg-neutral-900/20 hover:bg-blue-900/20 border border-neutral-800 hover:border-blue-900/20 text-neutral-400 hover:text-neutral-200 cursor-pointer transition-colors duration-200 text-sm flex items-center"
+                    aria-label="Attach File"
+                    style={{ lineHeight: 1 }}
+                  >
+                    <span className="inline-flex items-center justify-center">
+                      <ImagePlus size={16} />
+                    </span>
+                    <span className="text-sm font-medium">Attach</span>
+                    <input
+                      id="file-upload"
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleFileChange}
+                    />
+                  </label>
+                </div>
+                {/* Model Selector & Submit */}
+                <div className="flex items-center gap-2">
+                  {/* Model Selector - Bottom Right */}
                   <div className="" data-dropdown>
                     <div className="relative">
                       <button
@@ -607,41 +630,21 @@ export default function HeroSection() {
                       )}
                     </div>
                   </div>
-                  {/* Attach File */}
-                  <label
-                    htmlFor="file-upload"
-                    className="gap-1.5 px-3 py-1.5 rounded-full bg-neutral-900/20 hover:bg-blue-900/20 border border-neutral-800 hover:border-blue-900/20 text-neutral-400 hover:text-neutral-200 cursor-pointer transition-colors duration-200 text-sm flex items-center"
-                    aria-label="Attach File"
-                    style={{ lineHeight: 1 }}
+                  {/* Submit */}
+                  <button
+                    className={`p-2 rounded-full transition-colors duration-200 flex items-center justify-center
+                      ${
+                        promptValue.trim() || attachedFiles.length > 0
+                          ? "bg-white border border-white text-neutral-900 hover:bg-neutral-200 cursor-pointer"
+                          : "bg-neutral-800 border border-neutral-700 text-white opacity-60"
+                      }
+                    `}
+                    aria-label="Submit"
+                    disabled={!(promptValue.trim() || attachedFiles.length > 0)}
                   >
-                    <span className="inline-flex items-center justify-center">
-                      <ImagePlus size={16} />
-                    </span>
-                    <span className="text-sm font-medium">Attach</span>
-                    <input
-                      id="file-upload"
-                      type="file"
-                      multiple
-                      accept="image/*"
-                      className="hidden"
-                      onChange={handleFileChange}
-                    />
-                  </label>
+                    <ArrowRight size={16} />
+                  </button>
                 </div>
-                {/* Submit */}
-                <button
-                  className={`p-2 rounded-full transition-colors duration-200 flex items-center justify-center
-                    ${
-                      promptValue.trim() || attachedFiles.length > 0
-                        ? "bg-white border border-white text-neutral-900 hover:bg-neutral-200 cursor-pointer"
-                        : "bg-neutral-800 border border-neutral-700 text-white opacity-60"
-                    }
-                  `}
-                  aria-label="Submit"
-                  disabled={!(promptValue.trim() || attachedFiles.length > 0)}
-                >
-                  <ArrowRight size={16} />
-                </button>
               </div>
             </div>
 

@@ -19,7 +19,7 @@ export default function HomeLayout() {
         {/* Main container for hero section - takes remaining height */}
         <div className="flex flex-1">
           {/* Main content - hero section takes full remaining height */}
-          <main className="flex flex-col flex-1 items-center justify-center px-4">
+          <main className="flex flex-col flex-1 items-center justify-center w-full px-4">
             {/* Hero Section - centered in remaining space */}
             <HeroSection />
           </main>

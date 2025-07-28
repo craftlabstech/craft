@@ -82,11 +82,11 @@ export default function Header() {
         isScrolled ? "bg-neutral-950/80 backdrop-blur-xl" : "bg-transparent"
       }`}
     >
-      <div className="flex h-14 sm:h-16 items-center justify-between px-2 sm:px-4">
+      <div className="flex h-12 sm:h-14 items-center justify-between px-2 sm:px-4">
         {/* Logo */}
         <div className="flex items-center">
           <Link href="/" className="flex items-center gap-2">
-            <span className="text-lg sm:text-2xl font-roboto tracking-wider font-semibold text-white">
+            <span className="text-lg sm:text-2xl font-roboto tracking-wider font-medium text-white">
               Craft
             </span>
             <span className="px-3 py-0.5 rounded-full border border-neutral-600 text-xs font-light text-neutral-200 uppercase tracking-wider align-middle">
@@ -258,9 +258,9 @@ export default function Header() {
             /* Sign in button in header when not logged in */
             <button
               onClick={handleSignIn}
-              className="text-xs sm:text-sm rounded-full bg-neutral-100 px-4 py-2 font-semibold text-black transition-all duration-200 hover:opacity-90 focus:outline-none shadow-lg cursor-pointer"
+              className="text-xs text-center sm:text-sm rounded-full bg-white px-3 sm:px-4 py-1.5 sm:py-2 font-medium text-black transition-all duration-200 hover:opacity-90 focus:outline-none shadow-lg cursor-pointer"
             >
-              Sign in
+              <span>Sign in</span>
             </button>
           )}
         </div>
