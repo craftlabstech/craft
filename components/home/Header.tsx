@@ -89,7 +89,7 @@ export default function Header() {
             <span className="text-lg sm:text-2xl font-roboto tracking-wider font-semibold text-white">
               Craft
             </span>
-            <span className="px-3 py-0.5 rounded-full border border-white/60 text-xs font-light text-white uppercase tracking-wider align-middle">
+            <span className="px-3 py-0.5 rounded-full border border-neutral-600 text-xs font-light text-neutral-200 uppercase tracking-wider align-middle">
               Beta
             </span>
           </Link>

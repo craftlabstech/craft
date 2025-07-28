@@ -158,13 +158,13 @@
 }
 .minimal-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: #444 #222;
+  scrollbar-color: #444 transparent;
 }
 /* Unified Minimal Scrollbar Styles for the Whole App */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
-  background: #18181b;
+  background: transparent;
   border-radius: 6px;
 }
 
@@ -179,13 +179,13 @@
 }
 
 ::-webkit-scrollbar-corner {
-  background: #18181b;
+  background: transparent;
 }
 
 /* Firefox */
 * {
   scrollbar-width: thin;
-  scrollbar-color: #444 #18181b;
+  scrollbar-color: #444 transparent;
 }
 
 /* Hide scrollbar utility for dropdowns and custom scroll areas */

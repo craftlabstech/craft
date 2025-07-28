@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useEffect, useCallback, useState } from "react";
-import { ArrowRight, Paperclip, Sparkles } from "lucide-react";
+import { ArrowRight, ImagePlus, Sparkles, X } from "lucide-react";
 
 // Model configuration
 const modelCategories = {
@@ -134,7 +134,7 @@ export default function HeroSection() {
   const [showFileErrorModal, setShowFileErrorModal] = useState(false);
   const [promptValue, setPromptValue] = useState("");
 
-  // Handle file selection (max 1MB per file)
+  // Handle file selection (max 1MB per file, images only)
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const files = Array.from(e.target.files);
@@ -142,18 +142,31 @@ export default function HeroSection() {
       const validFiles: File[] = [];
       const previews: { [key: number]: string } = {};
       let rejected = false;
+      let nonImageRejected = false;
+
       files.forEach((file) => {
-        if (file.size <= maxSize) {
+        if (!file.type.startsWith("image/")) {
+          nonImageRejected = true;
+        } else if (file.size <= maxSize) {
           validFiles.push(file);
-          if (file.type.startsWith("image/")) {
-            const url = URL.createObjectURL(file);
-            previews[validFiles.length - 1] = url;
-          }
+          const url = URL.createObjectURL(file);
+          previews[validFiles.length - 1] = url;
         } else {
           rejected = true;
         }
       });
-      if (rejected) {
+
+      if (nonImageRejected && rejected) {
+        setFileError(
+          "Some files were not attached because only images are allowed and they must be 1MB or less."
+        );
+        setShowFileErrorModal(true);
+      } else if (nonImageRejected) {
+        setFileError(
+          "Some files were not attached because only images are allowed."
+        );
+        setShowFileErrorModal(true);
+      } else if (rejected) {
         setFileError(
           "Some files were not attached because they exceed the 1MB size limit."
         );
@@ -298,111 +311,35 @@ export default function HeroSection() {
         <div className="w-full max-w-3xl mx-auto">
           <div className="relative">
             <div
-              className={`relative rounded-xl bg-neutral-900/80 border backdrop-blur-sm transition-colors ${
-                isFocused ? "border-neutral-700" : "border-white/10"
-              } pb-12`}
+              className={`relative flex flex-col gap-2 p-3 rounded-3xl bg-neutral-900/80 border backdrop-blur-sm transition-colors ${
+                isFocused ? "border-neutral-700" : "border-neutral-800"
+              }`}
             >
-              {/* Show attached file previews and info (moved to top, inside input box) */}
+              {/* Show attached file previews (image only with hover remove button) */}
               {attachedFiles.length > 0 && (
-                <div className="flex flex-wrap gap-2 text-xs text-gray-300 px-4 pt-3">
+                <div className="flex flex-wrap gap-3 px-0 py-1">
                   {attachedFiles.map((file, idx) => {
-                    const isImage = file.type.startsWith("image/");
-                    const isPdf = file.type === "application/pdf";
                     return (
                       <div
                         key={idx}
-                        className="relative flex items-center bg-neutral-800 px-2 py-1 rounded-md border border-white/10 max-w-[200px] min-w-[60px] gap-2 truncate"
+                        className="relative group"
                         title={file.name}
-                        style={{ minHeight: 36 }}
                       >
-                        {/* Preview or icon */}
-                        {isImage ? (
-                          <img
-                            src={filePreviews[idx]}
-                            alt={file.name}
-                            className="w-7 h-7 object-cover rounded-sm border border-white/10 mr-1"
-                          />
-                        ) : isPdf ? (
-                          <span className="inline-flex items-center justify-center w-7 h-7 bg-red-900/40 text-red-300 rounded-sm mr-1">
-                            <svg
-                              width="18"
-                              height="18"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                            >
-                              <rect
-                                width="18"
-                                height="18"
-                                rx="3"
-                                fill="#fff"
-                                fillOpacity="0.1"
-                              />
-                              <path
-                                d="M7 15V9h2.5a2 2 0 1 1 0 4H7m6 2V9h2a2 2 0 1 1 0 4h-2"
-                                stroke="#f87171"
-                                strokeWidth="1.5"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center justify-center w-7 h-7 bg-neutral-700 text-neutral-300 rounded-sm mr-1">
-                            <svg
-                              width="18"
-                              height="18"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                            >
-                              <rect
-                                width="18"
-                                height="18"
-                                rx="3"
-                                fill="#fff"
-                                fillOpacity="0.08"
-                              />
-                              <path
-                                d="M8 12h8M8 16h8M8 8h8"
-                                stroke="#a3a3a3"
-                                strokeWidth="1.5"
-                                strokeLinecap="round"
-                              />
-                            </svg>
-                          </span>
-                        )}
-                        {/* File name and type */}
-                        <div className="flex flex-col min-w-0 flex-1">
-                          <span
-                            className="truncate font-medium text-white text-xs"
-                            style={{ maxWidth: 90 }}
-                          >
-                            {file.name}
-                          </span>
-                          <span className="truncate text-gray-400 text-[10px]">
-                            {file.type || "Unknown"}
-                          </span>
-                        </div>
-                        {/* Remove button */}
+                        {/* Preview Image */}
+                        <img
+                          src={filePreviews[idx]}
+                          alt={file.name}
+                          className="w-16 h-16 object-cover rounded-lg border border-white/10 transition-all duration-200 group-hover:border-white/20"
+                        />
+                        {/* Remove button - appears on hover */}
                         <button
                           type="button"
                           aria-label="Remove file"
-                          className="ml-1 p-1 rounded hover:bg-red-700/60 text-gray-300 hover:text-white transition-colors"
+                          className="absolute -top-2 -right-2 w-4 h-4 bg-neutral-100 text-black rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 shadow-lg"
                           onClick={() => handleRemoveFile(idx)}
                           tabIndex={0}
                         >
-                          <svg
-                            width="14"
-                            height="14"
-                            fill="none"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              d="M6 6l8 8M6 14L14 6"
-                              stroke="currentColor"
-                              strokeWidth="1.5"
-                              strokeLinecap="round"
-                            />
-                          </svg>
+                          <X size={12} />
                         </button>
                       </div>
                     );
@@ -463,8 +400,8 @@ export default function HeroSection() {
                       {fileError}
                     </div>
                     <div className="text-xs text-gray-400 text-center">
-                      Each file must be 1MB or less. Please choose smaller
-                      files.
+                      Please select image files only (JPEG, PNG, GIF, WebP,
+                      etc.) that are 1MB or less in size.
                     </div>
                     <button
                       className="mt-5 px-4 py-2 rounded bg-red-700 hover:bg-red-800 text-white text-xs font-semibold transition-colors"
@@ -481,7 +418,7 @@ export default function HeroSection() {
                 placeholder={`Ask me to craft ${typedPrompt}${
                   typing ? "|" : ""
                 }`}
-                className="w-full bg-transparent py-4 px-4 pr-14 text-white placeholder-gray-400 focus:outline-none text-base min-h-[80px] max-h-[300px] overflow-y-auto resize-none rounded-xl transition-colors"
+                className="w-full bg-transparent py-2 px-2 text-white placeholder-neutral-400 focus:outline-none text-base min-h-[80px] max-h-[300px] overflow-y-auto resize-none rounded-xl transition-colors"
                 value={promptValue}
                 onInput={autoResize}
                 onChange={handlePromptChange}
@@ -491,138 +428,145 @@ export default function HeroSection() {
                 onBlur={() => setIsFocused(false)}
               />
 
-              {/* Model Selector - Bottom Left */}
-              <div className="absolute left-3 bottom-3" data-dropdown>
-                <div className="relative">
-                  <button
-                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                    className="flex items-center gap-2 pl-2 pr-3 py-1.5 bg-neutral-800/90 border border-white/10 rounded-md hover:bg-neutral-700/80 transition-colors"
-                    aria-label="Select AI Model"
-                  >
-                    {/* AI Icon (sparkle style, similar to file icon) */}
-                    <span className="inline-flex items-center justify-center w-5 h-5">
-                      <Sparkles size={16} className="text-neutral-300" />
-                    </span>
-                    <span className="text-white text-xs font-medium">
-                      {getSelectedModelDetails().name}
-                    </span>
-                  </button>
+              <div className="flex flex-row justify-between items-center gap-2 ">
+                {/* Model Selector & File Attach Button */}
+                <div className="flex items-center gap-2">
+                  {/* Model Selector - Bottom Left */}
+                  <div className="" data-dropdown>
+                    <div className="relative">
+                      <button
+                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-neutral-900/20 hover:bg-blue-900/20 border border-neutral-800 hover:border-blue-900/20 text-neutral-400 hover:text-neutral-200"
+                        aria-label="Select AI Model"
+                      >
+                        {/* AI Icon (sparkle style, similar to file icon) */}
+                        <span className="inline-flex items-center justify-center">
+                          <Sparkles size={16} />
+                        </span>
+                        <span className="text-sm font-medium">
+                          {getSelectedModelDetails().name}
+                        </span>
+                      </button>
 
-                  {/* Dropdown Menu */}
-                  {isDropdownOpen && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 animate-fade-in">
-                      <div className="relative bg-neutral-900 border border-white/10 rounded-2xl shadow-2xl w-full max-w-md mx-4 max-h-[60vh] flex flex-col overflow-hidden">
-                        <button
-                          className="absolute top-3 right-3 text-gray-400 hover:text-white p-1 rounded hover:bg-red-700/30 transition-colors"
-                          aria-label="Close model selection"
-                          onClick={() => setIsDropdownOpen(false)}
-                        >
-                          <svg
-                            width="20"
-                            height="20"
-                            fill="none"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              d="M6 6l8 8M6 14L14 6"
-                              stroke="currentColor"
-                              strokeWidth="1.5"
-                              strokeLinecap="round"
-                            />
-                          </svg>
-                        </button>
-                        <div className="py-6 px-4 overflow-y-auto minimal-scrollbar">
-                          <h2 className="text-lg font-bold text-white mb-4 text-center">
-                            Select AI Model
-                          </h2>
-                          {/* Hide scrollbar arrows for all .minimal-scrollbar elements: now in globals.css */}
-                          {Object.entries(modelCategories).map(
-                            ([categoryKey, category], idx, arr) => (
-                              <div key={categoryKey} className="mb-4">
-                                <div className="px-1 pb-2 text-xs font-bold text-gray-300 uppercase tracking-widest">
-                                  {category.label}
-                                </div>
-                                {category.models.map((model) => (
-                                  <button
-                                    key={model.id}
-                                    onClick={() => handleModelSelect(model.id)}
-                                    className={`w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 group mb-2
+                      {/* Dropdown Menu */}
+                      {isDropdownOpen && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 animate-fade-in">
+                          <div className="relative bg-neutral-900 border border-white/10 rounded-2xl shadow-2xl w-full max-w-md mx-4 max-h-[60vh] flex flex-col overflow-hidden">
+                            <button
+                              className="absolute top-3 right-3 text-gray-400 hover:text-white p-1 rounded hover:bg-red-700/30 transition-colors"
+                              aria-label="Close model selection"
+                              onClick={() => setIsDropdownOpen(false)}
+                            >
+                              <svg
+                                width="20"
+                                height="20"
+                                fill="none"
+                                viewBox="0 0 20 20"
+                              >
+                                <path
+                                  d="M6 6l8 8M6 14L14 6"
+                                  stroke="currentColor"
+                                  strokeWidth="1.5"
+                                  strokeLinecap="round"
+                                />
+                              </svg>
+                            </button>
+                            <div className="py-6 px-4 overflow-y-auto minimal-scrollbar">
+                              <h2 className="text-lg font-bold text-white mb-4 text-center">
+                                Select AI Model
+                              </h2>
+                              {/* Hide scrollbar arrows for all .minimal-scrollbar elements: now in globals.css */}
+                              {Object.entries(modelCategories).map(
+                                ([categoryKey, category], idx, arr) => (
+                                  <div key={categoryKey} className="mb-4">
+                                    <div className="px-1 pb-2 text-xs font-bold text-gray-300 uppercase tracking-widest">
+                                      {category.label}
+                                    </div>
+                                    {category.models.map((model) => (
+                                      <button
+                                        key={model.id}
+                                        onClick={() =>
+                                          handleModelSelect(model.id)
+                                        }
+                                        className={`w-full text-left px-4 py-3 rounded-xl flex items-center gap-3 group mb-2
                                     ${
                                       selectedModel === model.id
                                         ? "bg-neutral-800 border border-neutral-600 shadow-sm ring-1 ring-neutral-500/20"
                                         : "hover:bg-neutral-800/70 hover:scale-[1.01] active:bg-neutral-700/80 border border-transparent"
                                     }
                                   `}
-                                  >
-                                    <div className="flex flex-col flex-1">
-                                      <span
-                                        className={`text-base font-semibold ${
-                                          selectedModel === model.id
-                                            ? "text-neutral-100"
-                                            : "text-white"
-                                        }`}
                                       >
-                                        {model.name}
-                                      </span>
-                                      <span className="text-gray-400 text-xs mt-0.5">
-                                        {model.description}
-                                      </span>
-                                    </div>
-                                    {selectedModel === model.id && (
-                                      <svg
-                                        className="w-5 h-5 text-neutral-300 ml-1"
-                                        fill="none"
-                                        stroke="currentColor"
-                                        strokeWidth="2.2"
-                                        viewBox="0 0 24 24"
-                                      >
-                                        <path
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                          d="M5 13l4 4L19 7"
-                                        />
-                                      </svg>
+                                        <div className="flex flex-col flex-1">
+                                          <span
+                                            className={`text-base font-semibold ${
+                                              selectedModel === model.id
+                                                ? "text-neutral-100"
+                                                : "text-white"
+                                            }`}
+                                          >
+                                            {model.name}
+                                          </span>
+                                          <span className="text-gray-400 text-xs mt-0.5">
+                                            {model.description}
+                                          </span>
+                                        </div>
+                                        {selectedModel === model.id && (
+                                          <svg
+                                            className="w-5 h-5 text-neutral-300 ml-1"
+                                            fill="none"
+                                            stroke="currentColor"
+                                            strokeWidth="2.2"
+                                            viewBox="0 0 24 24"
+                                          >
+                                            <path
+                                              strokeLinecap="round"
+                                              strokeLinejoin="round"
+                                              d="M5 13l4 4L19 7"
+                                            />
+                                          </svg>
+                                        )}
+                                      </button>
+                                    ))}
+                                    {idx < arr.length - 1 && (
+                                      <div className="my-3 mx-1 border-t border-white/10" />
                                     )}
-                                  </button>
-                                ))}
-                                {idx < arr.length - 1 && (
-                                  <div className="my-3 mx-1 border-t border-white/10" />
-                                )}
-                              </div>
-                            )
-                          )}
+                                  </div>
+                                )
+                              )}
+                            </div>
+                          </div>
                         </div>
-                      </div>
+                      )}
                     </div>
-                  )}
+                  </div>
+                  {/* Attach File */}
+                  <label
+                    htmlFor="file-upload"
+                    className="gap-1.5 px-3 py-1.5 rounded-full bg-neutral-900/20 hover:bg-blue-900/20 border border-neutral-800 hover:border-blue-900/20 text-neutral-400 hover:text-neutral-200 cursor-pointer transition-colors duration-200 text-sm flex items-center"
+                    aria-label="Attach File"
+                    style={{ lineHeight: 1 }}
+                  >
+                    <span className="inline-flex items-center justify-center">
+                      <ImagePlus size={16} />
+                    </span>
+                    <span className="text-sm font-medium">Attach</span>
+                    <input
+                      id="file-upload"
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleFileChange}
+                    />
+                  </label>
                 </div>
-              </div>
-
-              {/* File Attach Button & Submit Button */}
-              <div className="absolute right-3 bottom-3 flex items-center gap-2">
-                {/* Attach File */}
-                <label
-                  htmlFor="file-upload"
-                  className="p-2 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-white cursor-pointer transition-colors duration-200 text-xs flex items-center gap-1"
-                  aria-label="Attach File"
-                  style={{ lineHeight: 1 }}
-                >
-                  <Paperclip size={16} /> Attach
-                  <input
-                    id="file-upload"
-                    type="file"
-                    multiple
-                    className="hidden"
-                    onChange={handleFileChange}
-                  />
-                </label>
                 {/* Submit */}
                 <button
-                  className={`p-2 rounded-lg transition-colors duration-200 flex items-center justify-center
+                  className={`p-2 rounded-full transition-colors duration-200 flex items-center justify-center
                     ${
                       promptValue.trim() || attachedFiles.length > 0
-                        ? "bg-white text-neutral-900 hover:bg-neutral-200 cursor-pointer"
-                        : "bg-neutral-800 text-white opacity-60 cursor-not-allowed"
+                        ? "bg-white border border-white text-neutral-900 hover:bg-neutral-200 cursor-pointer"
+                        : "bg-neutral-800 border border-neutral-700 text-white opacity-60"
                     }
                   `}
                   aria-label="Submit"
