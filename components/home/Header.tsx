@@ -86,17 +86,17 @@ export default function Header() {
         {/* Logo */}
         <div className="flex items-center">
           <Link href="/" className="flex items-center gap-1">
-            <NextImage
+            {/* <NextImage
               src="/craft-logo.svg"
               alt="Craft.JS Logo"
               width={32}
               height={32}
               className="w-8 h-8"
               priority
-            />
+            /> */}
             <div className="flex items-baseline">
-              <span className="text-md sm:text-lg tracking-wider font-base text-white">
-                Craft.js
+              <span className="text-lg sm:text-2xl font-roboto tracking-wider font-semibold text-white">
+                Craft
               </span>
             </div>
           </Link>
@@ -300,7 +300,7 @@ export default function Header() {
               onClick={handleSignIn}
               className="rounded-md bg-neutral-100 px-4 py-2 text-sm font-medium text-black transition-all duration-200 hover:opacity-90 focus:outline-none shadow-lg cursor-pointer"
             >
-              Log In
+              Sign in
             </button>
           )}
         </div>

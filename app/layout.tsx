@@ -1,7 +1,6 @@
 import type React from "react";
 import "./globals.css";
 import type { Metadata } from "next";
-import { Knewave } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 import { ThemeProvider } from "@/components/theme-provider";
 import { SessionProvider } from "next-auth/react";
@@ -16,12 +15,6 @@ export const metadata: Metadata = {
   },
 };
 
-const knewave = Knewave({
-  weight: "400",
-  subsets: ["latin"],
-  variable: "--font-knewave",
-});
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -29,7 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${knewave.variable} font-geist antialiased`}>
+      <body className={`font-roboto antialiased`}>
         <SessionProvider>
           <ThemeProvider
             // attribute="class"
