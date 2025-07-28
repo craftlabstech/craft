@@ -8,8 +8,8 @@ import NextImage from "next/image";
 const Footer = memo(function Footer() {
   return (
     <footer className="w-full bg-neutral-900/90 backdrop-blur-md border-t border-white/10">
-      <div className="px-4 sm:px-12 py-10 sm:py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12">
+      <div className="px-4 sm:px-12 py-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12 sm:mt-4">
           {/* Brand */}
           <div className="space-y-4 lg:col-span-2">
             <div className="flex items-center gap-1">
@@ -25,7 +25,8 @@ const Footer = memo(function Footer() {
               </span>
             </div>
             <p className="text-neutral-400 text-sm leading-relaxed max-w-xs">
-              Effortlessly craft websites and apps by chatting with AI.
+              Effortlessly craft websites and apps by chatting with AI. Model
+              agnostic, open source, and pay-per-use.
             </p>
             <div className="flex gap-3 pt-2">
               <a
