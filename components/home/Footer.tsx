@@ -1,42 +1,43 @@
 "use client";
 
 import React, { memo } from "react";
+import { ExternalLink } from "lucide-react";
 import Link from "next/link";
 import NextImage from "next/image";
 
 const Footer = memo(function Footer() {
   return (
-    <footer className="w-full bg-neutral-950/90 border-t border-white/10 backdrop-blur-md pt-12 pb-0 px-4">
-      <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-10">
+    <footer className="w-full bg-card/90 backdrop-blur-md border-t border-border">
+      <div className="px-4 sm:px-12 py-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12 sm:mt-4">
           {/* Brand */}
-          <div className="space-y-4">
+          <div className="space-y-4 lg:col-span-2">
             <div className="flex items-center gap-1">
               <NextImage
                 src="/craft-logo.svg"
-                alt="CraftJS Logo"
-                width={32}
-                height={32}
-                className="h-8 w-8"
+                alt="Craft Logo"
+                width={40}
+                height={40}
+                className="w-7 h-7"
               />
-              <span className="text-white font-base text-lg tracking-wide">
-                Craft.js
+              <span className="text-foreground font-semibold text-xl tracking-tight">
+                Craft
               </span>
             </div>
-            <p className="text-gray-400 text-sm max-w-xs">
-              Effortlessly craft website and apps by chatting with AI.
-              Model-agnostic, open source, and pay per use.
+            <p className="text-muted-foreground text-sm leading-relaxed max-w-xs">
+              Effortlessly craft websites and apps by chatting with AI. Model
+              agnostic, open source, and pay-per-use.
             </p>
-            <div className="flex gap-4 mt-2">
+            <div className="flex gap-3 pt-2">
               <a
                 href="https://github.com/sudheerdotai/craft.js"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="GitHub"
-                className="text-gray-400 hover:text-white transition-colors"
+                className="w-9 h-9 rounded-lg bg-muted/60 border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-200"
               >
                 <svg
-                  className="w-5 h-5"
+                  className="w-4 h-4"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                 >
@@ -50,10 +51,10 @@ const Footer = memo(function Footer() {
               <a
                 href="mailto:support@craftjs.dev"
                 aria-label="Email"
-                className="text-gray-400 hover:text-white transition-colors"
+                className="w-9 h-9 rounded-lg bg-muted/60 border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-200"
               >
                 <svg
-                  className="w-5 h-5"
+                  className="w-4 h-4"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="1.8"
@@ -68,10 +69,10 @@ const Footer = memo(function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="X"
-                className="text-gray-400 hover:text-white transition-colors"
+                className="w-9 h-9 rounded-lg bg-muted/60 border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-200"
               >
                 <svg
-                  className="w-5 h-5"
+                  className="w-4 h-4"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                 >
@@ -83,10 +84,10 @@ const Footer = memo(function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Discord"
-                className="text-gray-400 hover:text-white transition-colors"
+                className="w-9 h-9 rounded-lg bg-muted/60 border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-200"
               >
                 <svg
-                  className="w-5 h-5"
+                  className="w-4 h-4"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                 >
@@ -98,20 +99,23 @@ const Footer = memo(function Footer() {
 
           {/* Product */}
           <div className="space-y-4">
-            <h3 className="text-white font-semibold">Product</h3>
-            <ul className="space-y-2">
+            <h3 className="text-foreground font-medium text-sm">Product</h3>
+            <ul className="space-y-3">
               <li>
-                <Link
-                  href="/templates"
-                  className="text-gray-400 hover:text-white transition-colors text-sm"
+                <a
+                  href="https://github.com/sudheerdotai/craft"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors text-sm"
                 >
-                  Templates
-                </Link>
+                  GitHub
+                  <ExternalLink className="w-4 h-4 opacity-60" />
+                </a>
               </li>
               <li>
                 <Link
                   href="/showcase"
-                  className="text-gray-400 hover:text-white transition-colors text-sm"
+                  className="text-muted-foreground hover:text-foreground transition-colors text-sm"
                 >
                   Showcase
                 </Link>
@@ -119,7 +123,7 @@ const Footer = memo(function Footer() {
               <li>
                 <Link
                   href="/pricing"
-                  className="text-gray-400 hover:text-white transition-colors text-sm"
+                  className="text-muted-foreground hover:text-foreground transition-colors text-sm"
                 >
                   Pricing
                 </Link>
@@ -127,17 +131,9 @@ const Footer = memo(function Footer() {
               <li>
                 <Link
                   href="/features"
-                  className="text-gray-400 hover:text-white transition-colors text-sm"
+                  className="text-muted-foreground hover:text-foreground transition-colors text-sm"
                 >
                   Features
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/integrations"
-                  className="text-gray-400 hover:text-white transition-colors text-sm"
-                >
-                  Integrations
                 </Link>
               </li>
             </ul>
@@ -145,12 +141,12 @@ const Footer = memo(function Footer() {
 
           {/* Resources */}
           <div className="space-y-4">
-            <h3 className="text-white font-semibold">Resources</h3>
-            <ul className="space-y-2">
+            <h3 className="text-foreground font-medium text-sm">Resources</h3>
+            <ul className="space-y-3">
               <li>
                 <Link
                   href="/docs"
-                  className="text-gray-400 hover:text-white transition-colors text-sm"
+                  className="text-muted-foreground hover:text-foreground transition-colors text-sm"
                 >
                   Documentation
                 </Link>
@@ -158,7 +154,7 @@ const Footer = memo(function Footer() {
               <li>
                 <Link
                   href="/tutorials"
-                  className="text-gray-400 hover:text-white transition-colors text-sm"
+                  className="text-muted-foreground hover:text-foreground transition-colors text-sm"
                 >
                   Tutorials
                 </Link>
@@ -166,7 +162,7 @@ const Footer = memo(function Footer() {
               <li>
                 <Link
                   href="/blog"
-                  className="text-gray-400 hover:text-white transition-colors text-sm"
+                  className="text-muted-foreground hover:text-foreground transition-colors text-sm"
                 >
                   Blog
                 </Link>
@@ -174,17 +170,9 @@ const Footer = memo(function Footer() {
               <li>
                 <Link
                   href="/community"
-                  className="text-gray-400 hover:text-white transition-colors text-sm"
+                  className="text-muted-foreground hover:text-foreground transition-colors text-sm"
                 >
                   Community
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/help"
-                  className="text-gray-400 hover:text-white transition-colors text-sm"
-                >
-                  Help Center
                 </Link>
               </li>
             </ul>
@@ -192,28 +180,20 @@ const Footer = memo(function Footer() {
 
           {/* Company */}
           <div className="space-y-4">
-            <h3 className="text-white font-semibold">Company</h3>
-            <ul className="space-y-2">
+            <h3 className="text-foreground font-medium text-sm">Company</h3>
+            <ul className="space-y-3">
               <li>
                 <Link
                   href="/about"
-                  className="text-gray-400 hover:text-white transition-colors text-sm"
+                  className="text-muted-foreground hover:text-foreground transition-colors text-sm"
                 >
                   About Us
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/careers"
-                  className="text-gray-400 hover:text-white transition-colors text-sm"
-                >
-                  Careers
-                </Link>
-              </li>
-              <li>
-                <Link
                   href="/contact"
-                  className="text-gray-400 hover:text-white transition-colors text-sm"
+                  className="text-muted-foreground hover:text-foreground transition-colors text-sm"
                 >
                   Contact
                 </Link>
@@ -223,9 +203,9 @@ const Footer = memo(function Footer() {
                   href="https://craftlabs.tech/privacy"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-gray-400 hover:text-white transition-colors text-sm"
+                  className="text-muted-foreground hover:text-foreground transition-colors text-sm"
                 >
-                  Privacy Policy
+                  Privacy
                 </a>
               </li>
               <li>
@@ -233,9 +213,9 @@ const Footer = memo(function Footer() {
                   href="https://craftlabs.tech/terms"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-gray-400 hover:text-white transition-colors text-sm"
+                  className="text-muted-foreground hover:text-foreground transition-colors text-sm"
                 >
-                  Terms of Service
+                  Terms
                 </a>
               </li>
             </ul>
@@ -243,32 +223,26 @@ const Footer = memo(function Footer() {
         </div>
 
         {/* Bottom Section */}
-        <div className="border-t border-white/10 py-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4 text-xs text-gray-400">
-          <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-6">
-            <span>
-              &copy; {new Date().getFullYear()} CraftJS. All rights reserved.
-            </span>
-            <span className="hidden md:inline-block">|</span>
-            <span>
-              Crafted with{" "}
-              <span className="text-pink-400">&#10084;&#65039;</span> for
-              builders
-            </span>
+        <div className="border-t border-border pt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-sm text-muted-foreground">
+          <div className="flex flex-col sm:flex-row sm:justify-center sm:items-center gap-2 sm:gap-4">
+            <div className="flex items-center gap-1">
+              &copy; {new Date().getFullYear()}
+              <a
+                href="https://craftlabs.tech"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-foreground transition-colors"
+              >
+                Craft Labs.
+              </a>
+              All rights reserved.
+            </div>
           </div>
-          {/* Newsletter Signup */}
-          <form className="flex items-center gap-2 max-w-xs w-full">
-            <input
-              type="email"
-              placeholder="Enter your email"
-              className="bg-neutral-900 border border-neutral-800 rounded-md px-3 py-2 text-xs text-white placeholder-neutral-400 focus:outline-none focus:border-neutral-700 w-full"
-            />
-            <button
-              type="submit"
-              className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-4 py-2 rounded-md text-xs font-medium hover:opacity-90 transition-all duration-300 focus:outline-none"
-            >
-              Subscribe
-            </button>
-          </form>
+          {/* <span className="hidden sm:inline-block text-neutral-600">•</span> */}
+          <span className="text-muted-foreground">
+            Crafted with <span className="text-destructive">♥</span> for
+            builders
+          </span>
         </div>
       </div>
     </footer>

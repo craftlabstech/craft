@@ -1,23 +1,16 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import {
-  Settings,
-  LogOut,
-  User,
-  Monitor,
-  Sun,
-  Moon,
-  ExternalLink,
-} from "lucide-react";
+import { Settings, LogOut, User, Monitor, Sun, Moon } from "lucide-react";
 import Link from "next/link";
 import NextImage from "next/image";
 import { useSession, signIn, signOut } from "next-auth/react";
+import { useTheme } from "../theme-provider";
 
 export default function Header() {
   const { data: session } = useSession();
+  const { theme, setTheme } = useTheme();
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [theme, setTheme] = useState<"system" | "light" | "dark">("system");
   const [imageError, setImageError] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const settingsRef = useRef<HTMLDivElement>(null);
@@ -25,10 +18,16 @@ export default function Header() {
   const handleThemeChange = useCallback(
     (newTheme: "system" | "light" | "dark") => {
       setTheme(newTheme);
-      // TODO: Implement actual theme switching logic here
     },
-    []
+    [setTheme]
   );
+
+  const cycleTheme = useCallback(() => {
+    const themes = ["system", "light", "dark"] as const;
+    const currentIndex = themes.indexOf(theme);
+    const nextIndex = (currentIndex + 1) % themes.length;
+    setTheme(themes[nextIndex]);
+  }, [theme, setTheme]);
 
   const handleImageError = useCallback(() => {
     setImageError(true);
@@ -78,62 +77,22 @@ export default function Header() {
 
   return (
     <header
-      className={`fixed top-0 z-50 w-full transition-all duration-300 border-b border-neutral-800 ${
-        isScrolled ? "bg-neutral-950/80 backdrop-blur-xl" : "bg-transparent"
+      className={`fixed top-0 z-50 w-full transition-all duration-300 border-b border-border ${
+        isScrolled ? "bg-background/80 backdrop-blur-xl" : "bg-transparent"
       }`}
     >
-      <div className="flex h-14 sm:h-16 items-center justify-between px-4 sm:px-6">
+      <div className="flex h-12 sm:h-14 items-center justify-between px-2 sm:px-4">
         {/* Logo */}
         <div className="flex items-center">
-          <Link href="/" className="flex items-center gap-1">
-            <NextImage
-              src="/craft-logo.svg"
-              alt="Craft.JS Logo"
-              width={32}
-              height={32}
-              className="w-8 h-8"
-              priority
-            />
-            <div className="flex items-baseline">
-              <span className="text-md sm:text-lg tracking-wider font-base text-white">
-                Craft.js
-              </span>
-            </div>
+          <Link href="/" className="flex items-center gap-2">
+            <span className="text-lg sm:text-2xl font-roboto tracking-wider font-medium text-foreground">
+              Craft
+            </span>
+            <span className="px-3 py-0.5 rounded-full border border-border text-xs font-light text-muted-foreground uppercase tracking-wider align-middle">
+              Beta
+            </span>
           </Link>
         </div>
-
-        {/* Navigation Options */}
-        <nav className="hidden md:flex items-center space-x-2">
-          <Link
-            href="https://discord.gg/eaDJ4Hus7w"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-gray-300 hover:text-white transition-all duration-200 text-sm font-medium hover:bg-white/5 px-3 py-2 rounded-lg"
-          >
-            Community
-          </Link>
-          <Link
-            href="/docs"
-            className="text-gray-300 hover:text-white transition-all duration-200 text-sm font-medium hover:bg-white/5 px-3 py-2 rounded-lg"
-          >
-            Docs
-          </Link>
-          <Link
-            href="/showcase"
-            className="text-gray-300 hover:text-white transition-all duration-200 text-sm font-medium hover:bg-white/5 px-3 py-2 rounded-lg"
-          >
-            Showcase
-          </Link>
-          <Link
-            href="https://github.com/sudheerdotai/craft.js"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-gray-300 hover:text-white transition-all duration-200 text-sm font-medium flex items-center gap-1 hover:bg-white/5 px-3 py-2 rounded-lg"
-          >
-            GitHub
-            <ExternalLink className="w-4 h-4 opacity-60" />
-          </Link>
-        </nav>
 
         <div className="flex items-center gap-2 sm:gap-3">
           {session ? (
@@ -161,16 +120,16 @@ export default function Header() {
                 alt="Profile picture"
                 width={32}
                 height={32}
-                className="rounded-full hover:ring-2 hover:ring-purple-500 transition-all duration-200"
+                className="rounded-full hover:ring-2 hover:ring-ring transition-all duration-200"
                 onError={handleImageError}
                 priority
               />
 
               {/* Settings popup */}
               {settingsOpen && (
-                <div className="absolute top-full right-0 mt-2 w-64 bg-gray-900/95 backdrop-blur-md rounded-md shadow-2xl border border-gray-700/50 z-10">
+                <div className="absolute top-full right-0 mt-2 w-64 bg-popover backdrop-blur-md rounded-md shadow-2xl border border-border z-10">
                   {/* User profile info */}
-                  <div className="p-4 border-b border-gray-700">
+                  <div className="p-4 border-b border-border">
                     <div className="flex items-center">
                       <NextImage
                         src={
@@ -185,28 +144,28 @@ export default function Header() {
                         onError={handleImageError}
                       />
                       <div className="overflow-hidden">
-                        <p className="text-sm font-medium text-white truncate">
+                        <p className="text-sm font-medium text-popover-foreground truncate">
                           {session.user?.name || "Unknown User"}
                         </p>
-                        <p className="text-xs text-gray-400 truncate">
+                        <p className="text-xs text-muted-foreground truncate">
                           {session.user?.email || "No email"}
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="py-1 divide-y divide-gray-700">
+                  <div className="py-1 divide-y divide-border">
                     <div className="py-1">
                       <Link
                         href="/profile"
-                        className="flex items-center px-3 py-2 text-sm text-gray-300 hover:bg-gray-700 transition-colors"
+                        className="flex items-center px-3 py-2 text-sm text-popover-foreground hover:bg-accent transition-colors"
                       >
                         <User className="mr-2 h-4 w-4" />
                         Profile
                       </Link>
                       <Link
                         href="/settings"
-                        className="flex items-center px-3 py-2 text-sm text-gray-300 hover:bg-gray-700 transition-colors"
+                        className="flex items-center px-3 py-2 text-sm text-popover-foreground hover:bg-accent transition-colors"
                       >
                         <Settings className="mr-2 h-4 w-4" />
                         Settings
@@ -215,7 +174,7 @@ export default function Header() {
 
                     <div className="py-1">
                       <div className="px-3 py-2">
-                        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                           Theme
                         </p>
                         <div
@@ -225,10 +184,10 @@ export default function Header() {
                         >
                           <button
                             onClick={() => handleThemeChange("system")}
-                            className={`p-1.5 rounded-md transition-colors ${
+                            className={`p-1.5 rounded-md transition-colors border-2 ${
                               theme === "system"
-                                ? "bg-purple-600"
-                                : "bg-gray-700 hover:bg-gray-600"
+                                ? "bg-blue-500 text-white border-blue-500 shadow-md"
+                                : "bg-muted/50 hover:bg-muted border-border text-muted-foreground hover:text-foreground"
                             }`}
                             aria-label="System theme"
                           >
@@ -236,10 +195,10 @@ export default function Header() {
                           </button>
                           <button
                             onClick={() => handleThemeChange("light")}
-                            className={`p-1.5 rounded-md transition-colors ${
+                            className={`p-1.5 rounded-md transition-colors border-2 ${
                               theme === "light"
-                                ? "bg-purple-600"
-                                : "bg-gray-700 hover:bg-gray-600"
+                                ? "bg-blue-500 text-white border-blue-500 shadow-md"
+                                : "bg-muted/50 hover:bg-muted border-border text-muted-foreground hover:text-foreground"
                             }`}
                             aria-label="Light theme"
                           >
@@ -247,10 +206,10 @@ export default function Header() {
                           </button>
                           <button
                             onClick={() => handleThemeChange("dark")}
-                            className={`p-1.5 rounded-md transition-colors ${
+                            className={`p-1.5 rounded-md transition-colors border-2 ${
                               theme === "dark"
-                                ? "bg-purple-600"
-                                : "bg-gray-700 hover:bg-gray-600"
+                                ? "bg-blue-500 text-white border-blue-500 shadow-md"
+                                : "bg-muted/50 hover:bg-muted border-border text-muted-foreground hover:text-foreground"
                             }`}
                             aria-label="Dark theme"
                           >
@@ -262,14 +221,14 @@ export default function Header() {
                       <div className="px-3 py-2">
                         <label
                           htmlFor="language-select"
-                          className="text-xs font-semibold text-gray-400 uppercase tracking-wider"
+                          className="text-xs font-semibold text-muted-foreground uppercase tracking-wider"
                         >
                           Language
                         </label>
                         <div className="mt-2">
                           <select
                             id="language-select"
-                            className="text-sm bg-gray-700 border border-gray-600 rounded-md py-1 px-2 w-full focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            className="text-sm bg-muted border border-border rounded-md py-1 px-2 w-full focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
                             defaultValue="en"
                           >
                             <option value="en">English</option>
@@ -284,7 +243,7 @@ export default function Header() {
                     <div className="py-1">
                       <button
                         onClick={handleSignOut}
-                        className="flex w-full items-center px-3 py-2 text-sm text-red-400 hover:bg-gray-700 transition-colors"
+                        className="flex w-full items-center px-3 py-2 text-sm text-destructive hover:bg-accent transition-colors"
                       >
                         <LogOut className="mr-2 h-4 w-4" />
                         Sign out
@@ -295,13 +254,32 @@ export default function Header() {
               )}
             </div>
           ) : (
-            /* Sign in button in header when not logged in */
-            <button
-              onClick={handleSignIn}
-              className="rounded-md bg-neutral-100 px-4 py-2 text-sm font-medium text-black transition-all duration-200 hover:opacity-90 focus:outline-none shadow-lg cursor-pointer"
-            >
-              Log In
-            </button>
+            /* Theme switcher and sign in button when not logged in */
+            <>
+              {/* Single theme toggle button */}
+              <button
+                onClick={cycleTheme}
+                className="p-1.5 rounded-full transition-colors hover:border-2 bg-muted/50 hover:bg-muted hover:border-primary text-muted-foreground hover:text-foreground"
+                aria-label={`Current theme: ${theme}. Click to switch theme`}
+                title={`Current: ${
+                  theme.charAt(0).toUpperCase() + theme.slice(1)
+                } theme`}
+              >
+                {theme === "system" && (
+                  <Monitor className="h-3 w-3 sm:h-4 sm:w-4" />
+                )}
+                {theme === "light" && <Sun className="h-3 w-3 sm:h-4 sm:w-4" />}
+                {theme === "dark" && <Moon className="h-3 w-3 sm:h-4 sm:w-4" />}
+              </button>
+
+              {/* Sign in button */}
+              <button
+                onClick={handleSignIn}
+                className="text-xs text-center sm:text-sm rounded-full bg-primary text-primary-foreground border-2 border-primary hover:border-primary/80 px-3 sm:px-4 py-1.5 sm:py-2 font-medium transition-all duration-200 hover:opacity-90 focus:outline-none cursor-pointer"
+              >
+                <span>Sign in</span>
+              </button>
+            </>
           )}
         </div>
       </div>

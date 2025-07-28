@@ -11,8 +11,7 @@ const config: Config = {
     theme: {
         extend: {
             fontFamily: {
-                geist: ["var(--font-geist-sans)", "system-ui", "sans-serif"],
-                knewave: ["var(--font-knewave)", "cursive"],
+                roboto: ["var(--font-roboto-sans)", "system-ui", "sans-serif"],
             },
             colors: {
                 black: "#09090b",
