@@ -82,58 +82,18 @@ export default function Header() {
         isScrolled ? "bg-neutral-950/80 backdrop-blur-xl" : "bg-transparent"
       }`}
     >
-      <div className="flex h-14 sm:h-16 items-center justify-between px-4 sm:px-6">
+      <div className="flex h-14 sm:h-16 items-center justify-between px-2 sm:px-4">
         {/* Logo */}
         <div className="flex items-center">
-          <Link href="/" className="flex items-center gap-1">
-            {/* <NextImage
-              src="/craft-logo.svg"
-              alt="Craft.JS Logo"
-              width={32}
-              height={32}
-              className="w-8 h-8"
-              priority
-            /> */}
-            <div className="flex items-baseline">
-              <span className="text-lg sm:text-2xl font-roboto tracking-wider font-semibold text-white">
-                Craft
-              </span>
-            </div>
+          <Link href="/" className="flex items-center gap-2">
+            <span className="text-lg sm:text-2xl font-roboto tracking-wider font-semibold text-white">
+              Craft
+            </span>
+            <span className="px-3 py-0.5 rounded-full border border-white/60 text-xs font-light text-white uppercase tracking-wider align-middle">
+              Beta
+            </span>
           </Link>
         </div>
-
-        {/* Navigation Options */}
-        <nav className="hidden md:flex items-center space-x-2">
-          <Link
-            href="https://discord.gg/eaDJ4Hus7w"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-gray-300 hover:text-white transition-all duration-200 text-sm font-medium hover:bg-white/5 px-3 py-2 rounded-lg"
-          >
-            Community
-          </Link>
-          <Link
-            href="/docs"
-            className="text-gray-300 hover:text-white transition-all duration-200 text-sm font-medium hover:bg-white/5 px-3 py-2 rounded-lg"
-          >
-            Docs
-          </Link>
-          <Link
-            href="/showcase"
-            className="text-gray-300 hover:text-white transition-all duration-200 text-sm font-medium hover:bg-white/5 px-3 py-2 rounded-lg"
-          >
-            Showcase
-          </Link>
-          <Link
-            href="https://github.com/sudheerdotai/craft.js"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-gray-300 hover:text-white transition-all duration-200 text-sm font-medium flex items-center gap-1 hover:bg-white/5 px-3 py-2 rounded-lg"
-          >
-            GitHub
-            <ExternalLink className="w-4 h-4 opacity-60" />
-          </Link>
-        </nav>
 
         <div className="flex items-center gap-2 sm:gap-3">
           {session ? (
@@ -298,7 +258,7 @@ export default function Header() {
             /* Sign in button in header when not logged in */
             <button
               onClick={handleSignIn}
-              className="rounded-md bg-neutral-100 px-4 py-2 text-sm font-medium text-black transition-all duration-200 hover:opacity-90 focus:outline-none shadow-lg cursor-pointer"
+              className="text-xs sm:text-sm rounded-full bg-neutral-100 px-4 py-2 font-semibold text-black transition-all duration-200 hover:opacity-90 focus:outline-none shadow-lg cursor-pointer"
             >
               Sign in
             </button>
