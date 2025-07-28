@@ -2,6 +2,7 @@
 
 import React, { useRef, useEffect, useCallback, useState } from "react";
 import { ArrowRight, ImagePlus, Sparkles, X } from "lucide-react";
+import Image from "next/image";
 
 // Model configuration
 const modelCategories = {
@@ -258,20 +259,6 @@ export default function HeroSection() {
     });
   };
 
-  // Calculate total file size for display
-  const getTotalFileSize = () => {
-    return attachedFiles.reduce((total, file) => total + file.size, 0);
-  };
-
-  // Format bytes to human readable format
-  const formatBytes = (bytes: number) => {
-    if (bytes === 0) return "0 Bytes";
-    const k = 1024;
-    const sizes = ["Bytes", "KB", "MB"];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
-  };
-
   // Handle textarea change
   const handlePromptChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setPromptValue(e.target.value);
@@ -407,9 +394,11 @@ export default function HeroSection() {
                         title={file.name}
                       >
                         {/* Preview Image */}
-                        <img
+                        <Image
                           src={filePreviews[idx]}
                           alt={file.name}
+                          width={64}
+                          height={64}
                           className="w-16 h-16 object-cover rounded-xl border border-white/10 transition-all duration-200 group-hover:border-white/20"
                         />
                         {/* Remove button - appears on hover */}

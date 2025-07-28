@@ -1,23 +1,16 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import {
-  Settings,
-  LogOut,
-  User,
-  Monitor,
-  Sun,
-  Moon,
-  ExternalLink,
-} from "lucide-react";
+import { Settings, LogOut, User, Monitor, Sun, Moon } from "lucide-react";
 import Link from "next/link";
 import NextImage from "next/image";
 import { useSession, signIn, signOut } from "next-auth/react";
+import { useTheme } from "../theme-provider";
 
 export default function Header() {
   const { data: session } = useSession();
+  const { theme, setTheme } = useTheme();
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [theme, setTheme] = useState<"system" | "light" | "dark">("system");
   const [imageError, setImageError] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const settingsRef = useRef<HTMLDivElement>(null);
@@ -25,9 +18,8 @@ export default function Header() {
   const handleThemeChange = useCallback(
     (newTheme: "system" | "light" | "dark") => {
       setTheme(newTheme);
-      // TODO: Implement actual theme switching logic here
     },
-    []
+    [setTheme]
   );
 
   const handleImageError = useCallback(() => {
