@@ -422,7 +422,7 @@ export default function HeroSection() {
                   {/* Attach File */}
                   <label
                     htmlFor="file-upload"
-                    className="gap-1.5 px-3 py-1.5 rounded-full bg-secondary/20 hover:bg-accent border border-border hover:border-border text-muted-foreground hover:text-foreground cursor-pointer transition-colors duration-200 text-sm flex items-center"
+                    className="gap-1.5 px-3 py-1.5 rounded-full bg-muted/50 hover:bg-muted border border-border hover:border-border text-muted-foreground hover:text-foreground cursor-pointer transition-colors duration-200 text-sm flex items-center"
                     aria-label="Attach File"
                     style={{ lineHeight: 1 }}
                   >
@@ -446,7 +446,7 @@ export default function HeroSection() {
                   <div className="relative" data-dropdown>
                     <button
                       onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-secondary/20 hover:bg-accent border border-border hover:border-border text-muted-foreground hover:text-foreground"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-muted/50 hover:bg-muted border border-border hover:border-border text-muted-foreground hover:text-foreground"
                       aria-label="Select AI Model"
                     >
                       {/* AI Icon (sparkle style, similar to file icon) */}
@@ -518,11 +518,11 @@ export default function HeroSection() {
             {/* Model Selection Hint */}
             <div className="flex items-center justify-center gap-2 mt-6">
               <span className="text-xs text-muted-foreground">Open Source</span>
-              <span className="w-1 h-1 bg-muted-foreground rounded-full"></span>
+              <div className="w-1 h-1 bg-current rounded-full text-muted-foreground inline-block align-middle"></div>
               <span className="text-xs text-muted-foreground">
                 Model Agnostic
               </span>
-              <span className="w-1 h-1 bg-muted-foreground rounded-full"></span>
+              <div className="w-1 h-1 bg-current rounded-full text-muted-foreground inline-block align-middle"></div>
               <span className="text-xs text-muted-foreground">Pay Per Use</span>
             </div>
           </div>

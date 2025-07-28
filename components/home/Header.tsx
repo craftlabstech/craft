@@ -22,6 +22,13 @@ export default function Header() {
     [setTheme]
   );
 
+  const cycleTheme = useCallback(() => {
+    const themes = ["system", "light", "dark"] as const;
+    const currentIndex = themes.indexOf(theme);
+    const nextIndex = (currentIndex + 1) % themes.length;
+    setTheme(themes[nextIndex]);
+  }, [theme, setTheme]);
+
   const handleImageError = useCallback(() => {
     setImageError(true);
   }, []);
@@ -177,10 +184,10 @@ export default function Header() {
                         >
                           <button
                             onClick={() => handleThemeChange("system")}
-                            className={`p-1.5 rounded-md transition-colors ${
+                            className={`p-1.5 rounded-md transition-colors border-2 ${
                               theme === "system"
-                                ? "bg-primary text-primary-foreground"
-                                : "bg-secondary hover:bg-accent"
+                                ? "bg-blue-500 text-white border-blue-500 shadow-md"
+                                : "bg-muted/50 hover:bg-muted border-border text-muted-foreground hover:text-foreground"
                             }`}
                             aria-label="System theme"
                           >
@@ -188,10 +195,10 @@ export default function Header() {
                           </button>
                           <button
                             onClick={() => handleThemeChange("light")}
-                            className={`p-1.5 rounded-md transition-colors ${
+                            className={`p-1.5 rounded-md transition-colors border-2 ${
                               theme === "light"
-                                ? "bg-primary text-primary-foreground"
-                                : "bg-secondary hover:bg-accent"
+                                ? "bg-blue-500 text-white border-blue-500 shadow-md"
+                                : "bg-muted/50 hover:bg-muted border-border text-muted-foreground hover:text-foreground"
                             }`}
                             aria-label="Light theme"
                           >
@@ -199,10 +206,10 @@ export default function Header() {
                           </button>
                           <button
                             onClick={() => handleThemeChange("dark")}
-                            className={`p-1.5 rounded-md transition-colors ${
+                            className={`p-1.5 rounded-md transition-colors border-2 ${
                               theme === "dark"
-                                ? "bg-primary text-primary-foreground"
-                                : "bg-secondary hover:bg-accent"
+                                ? "bg-blue-500 text-white border-blue-500 shadow-md"
+                                : "bg-muted/50 hover:bg-muted border-border text-muted-foreground hover:text-foreground"
                             }`}
                             aria-label="Dark theme"
                           >
@@ -221,7 +228,7 @@ export default function Header() {
                         <div className="mt-2">
                           <select
                             id="language-select"
-                            className="text-sm bg-secondary border border-border rounded-md py-1 px-2 w-full focus:outline-none focus:ring-2 focus:ring-ring"
+                            className="text-sm bg-muted border border-border rounded-md py-1 px-2 w-full focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
                             defaultValue="en"
                           >
                             <option value="en">English</option>
@@ -247,13 +254,32 @@ export default function Header() {
               )}
             </div>
           ) : (
-            /* Sign in button in header when not logged in */
-            <button
-              onClick={handleSignIn}
-              className="text-xs text-center sm:text-sm rounded-full bg-primary text-primary-foreground px-3 sm:px-4 py-1.5 sm:py-2 font-medium transition-all duration-200 hover:opacity-90 focus:outline-none shadow-lg cursor-pointer"
-            >
-              <span>Sign in</span>
-            </button>
+            /* Theme switcher and sign in button when not logged in */
+            <>
+              {/* Single theme toggle button */}
+              <button
+                onClick={cycleTheme}
+                className="p-1.5 rounded-full transition-colors hover:border-2 bg-muted/50 hover:bg-muted hover:border-primary text-muted-foreground hover:text-foreground"
+                aria-label={`Current theme: ${theme}. Click to switch theme`}
+                title={`Current: ${
+                  theme.charAt(0).toUpperCase() + theme.slice(1)
+                } theme`}
+              >
+                {theme === "system" && (
+                  <Monitor className="h-3 w-3 sm:h-4 sm:w-4" />
+                )}
+                {theme === "light" && <Sun className="h-3 w-3 sm:h-4 sm:w-4" />}
+                {theme === "dark" && <Moon className="h-3 w-3 sm:h-4 sm:w-4" />}
+              </button>
+
+              {/* Sign in button */}
+              <button
+                onClick={handleSignIn}
+                className="text-xs text-center sm:text-sm rounded-full bg-primary text-primary-foreground border-2 border-primary hover:border-primary/80 px-3 sm:px-4 py-1.5 sm:py-2 font-medium transition-all duration-200 hover:opacity-90 focus:outline-none cursor-pointer"
+              >
+                <span>Sign in</span>
+              </button>
+            </>
           )}
         </div>
       </div>

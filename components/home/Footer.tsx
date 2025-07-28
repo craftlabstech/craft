@@ -34,7 +34,7 @@ const Footer = memo(function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="GitHub"
-                className="w-9 h-9 rounded-lg bg-secondary/60 border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-all duration-200"
+                className="w-9 h-9 rounded-lg bg-muted/60 border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-200"
               >
                 <svg
                   className="w-4 h-4"
@@ -51,7 +51,7 @@ const Footer = memo(function Footer() {
               <a
                 href="mailto:support@craftjs.dev"
                 aria-label="Email"
-                className="w-9 h-9 rounded-lg bg-secondary/60 border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-all duration-200"
+                className="w-9 h-9 rounded-lg bg-muted/60 border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-200"
               >
                 <svg
                   className="w-4 h-4"
@@ -69,7 +69,7 @@ const Footer = memo(function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="X"
-                className="w-9 h-9 rounded-lg bg-secondary/60 border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-all duration-200"
+                className="w-9 h-9 rounded-lg bg-muted/60 border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-200"
               >
                 <svg
                   className="w-4 h-4"
@@ -84,7 +84,7 @@ const Footer = memo(function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Discord"
-                className="w-9 h-9 rounded-lg bg-secondary/60 border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-all duration-200"
+                className="w-9 h-9 rounded-lg bg-muted/60 border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-200"
               >
                 <svg
                   className="w-4 h-4"
