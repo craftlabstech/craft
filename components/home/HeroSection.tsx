@@ -134,47 +134,87 @@ export default function HeroSection() {
   const [showFileErrorModal, setShowFileErrorModal] = useState(false);
   const [promptValue, setPromptValue] = useState("");
 
-  // Handle file selection (max 1MB per file, images only)
+  // Handle file selection (max 10 files, total 10MB limit, images only)
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
-      const files = Array.from(e.target.files);
-      const maxSize = 1024 * 1024; // 1MB
-      const validFiles: File[] = [];
-      const previews: { [key: number]: string } = {};
-      let rejected = false;
-      let nonImageRejected = false;
+      const newFiles = Array.from(e.target.files);
+      const maxTotalSize = 10 * 1024 * 1024; // 10MB total
+      const maxFiles = 10;
 
-      files.forEach((file) => {
+      // Combine existing and new files
+      const allFiles = [...attachedFiles, ...newFiles];
+
+      const validFiles: File[] = [];
+      const previews: { [key: number]: string } = { ...filePreviews };
+      let rejectedSize = false;
+      let rejectedCount = false;
+      let nonImageRejected = false;
+      let totalSize = 0;
+
+      // First, check for non-image files
+      const imageFiles = allFiles.filter((file) => {
         if (!file.type.startsWith("image/")) {
           nonImageRejected = true;
-        } else if (file.size <= maxSize) {
-          validFiles.push(file);
-          const url = URL.createObjectURL(file);
-          previews[validFiles.length - 1] = url;
-        } else {
-          rejected = true;
+          return false;
         }
+        return true;
       });
 
-      if (nonImageRejected && rejected) {
-        setFileError(
-          "Some files were not attached because only images are allowed and they must be 1MB or less."
-        );
-        setShowFileErrorModal(true);
+      // Check file count limit
+      if (imageFiles.length > maxFiles) {
+        rejectedCount = true;
+      }
+
+      // Add files up to the limit and check total size
+      for (let i = 0; i < Math.min(imageFiles.length, maxFiles); i++) {
+        const file = imageFiles[i];
+        if (totalSize + file.size <= maxTotalSize) {
+          validFiles.push(file);
+          totalSize += file.size;
+
+          // Create preview for new files only
+          if (!attachedFiles.includes(file)) {
+            const url = URL.createObjectURL(file);
+            previews[validFiles.length - 1] = url;
+          }
+        } else {
+          rejectedSize = true;
+        }
+      }
+
+      // Generate appropriate error messages
+      let errorMessage = "";
+      if (nonImageRejected && rejectedSize && rejectedCount) {
+        errorMessage =
+          "Some files were not attached because only images are allowed, you can only attach up to 10 files, and the total size cannot exceed 10MB.";
+      } else if (nonImageRejected && rejectedSize) {
+        errorMessage =
+          "Some files were not attached because only images are allowed and the total size cannot exceed 10MB.";
+      } else if (nonImageRejected && rejectedCount) {
+        errorMessage =
+          "Some files were not attached because only images are allowed and you can only attach up to 10 files.";
+      } else if (rejectedSize && rejectedCount) {
+        errorMessage =
+          "Some files were not attached because you can only attach up to 10 files and the total size cannot exceed 10MB.";
       } else if (nonImageRejected) {
-        setFileError(
-          "Some files were not attached because only images are allowed."
-        );
-        setShowFileErrorModal(true);
-      } else if (rejected) {
-        setFileError(
-          "Some files were not attached because they exceed the 1MB size limit."
-        );
+        errorMessage =
+          "Some files were not attached because only images are allowed.";
+      } else if (rejectedSize) {
+        errorMessage =
+          "Some files were not attached because the total size would exceed 10MB.";
+      } else if (rejectedCount) {
+        errorMessage =
+          "Some files were not attached because you can only attach up to 10 files.";
+      }
+
+      if (errorMessage) {
+        setFileError(errorMessage);
         setShowFileErrorModal(true);
       } else {
         setFileError("");
         setShowFileErrorModal(false);
       }
+
       setAttachedFiles(validFiles);
       setFilePreviews(previews);
     }
@@ -188,17 +228,44 @@ export default function HeroSection() {
     });
     setFilePreviews((prev) => {
       const newPreviews = { ...prev };
+
+      // Revoke the URL for the removed file
       if (newPreviews[idx]) {
         URL.revokeObjectURL(newPreviews[idx]);
-        delete newPreviews[idx];
       }
-      // Re-index previews
+
+      // Re-index previews by shifting indices down
       const reIndexed: { [key: number]: string } = {};
-      Object.keys(newPreviews).forEach((key, i) => {
-        reIndexed[i] = newPreviews[Number(key)];
+      let newIndex = 0;
+
+      Object.keys(newPreviews).forEach((key) => {
+        const oldIndex = Number(key);
+        if (oldIndex !== idx) {
+          if (oldIndex > idx) {
+            reIndexed[newIndex] = newPreviews[oldIndex];
+          } else {
+            reIndexed[newIndex] = newPreviews[oldIndex];
+          }
+          newIndex++;
+        }
       });
+
       return reIndexed;
     });
+  };
+
+  // Calculate total file size for display
+  const getTotalFileSize = () => {
+    return attachedFiles.reduce((total, file) => total + file.size, 0);
+  };
+
+  // Format bytes to human readable format
+  const formatBytes = (bytes: number) => {
+    if (bytes === 0) return "0 Bytes";
+    const k = 1024;
+    const sizes = ["Bytes", "KB", "MB"];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + " " + sizes[i];
   };
 
   // Handle textarea change
@@ -393,7 +460,7 @@ export default function HeroSection() {
                         />
                       </svg>
                       <span className="text-lg font-semibold text-red-300">
-                        File Too Large
+                        File Upload Error
                       </span>
                     </div>
                     <div className="text-sm text-red-200 text-center mb-2">
@@ -401,7 +468,8 @@ export default function HeroSection() {
                     </div>
                     <div className="text-xs text-gray-400 text-center">
                       Please select image files only (JPEG, PNG, GIF, WebP,
-                      etc.) that are 1MB or less in size.
+                      etc.). You can attach up to 10 images with a total size
+                      limit of 10MB.
                     </div>
                     <button
                       className="mt-5 px-4 py-2 rounded bg-red-700 hover:bg-red-800 text-white text-xs font-semibold transition-colors"
