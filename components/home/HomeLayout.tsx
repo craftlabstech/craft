@@ -10,7 +10,7 @@ export default function HomeLayout() {
   // const { data: session } = useSession();
 
   return (
-    <div className="relative flex min-h-screen flex-col text-white overflow-hidden">
+    <div className="relative flex min-h-screen flex-col bg-background text-foreground overflow-hidden">
       {/* Content with relative positioning */}
       <div className="relative z-10 flex min-h-screen flex-col flex-1">
         {/* Header - always visible, full width from left corner */}

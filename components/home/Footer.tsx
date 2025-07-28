@@ -7,7 +7,7 @@ import NextImage from "next/image";
 
 const Footer = memo(function Footer() {
   return (
-    <footer className="w-full bg-neutral-900/90 backdrop-blur-md border-t border-white/10">
+    <footer className="w-full bg-card/90 backdrop-blur-md border-t border-border">
       <div className="px-4 sm:px-12 py-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 mb-12 sm:mt-4">
           {/* Brand */}
@@ -20,11 +20,11 @@ const Footer = memo(function Footer() {
                 height={40}
                 className="w-7 h-7"
               />
-              <span className="text-white font-semibold text-xl tracking-tight">
+              <span className="text-foreground font-semibold text-xl tracking-tight">
                 Craft
               </span>
             </div>
-            <p className="text-neutral-400 text-sm leading-relaxed max-w-xs">
+            <p className="text-muted-foreground text-sm leading-relaxed max-w-xs">
               Effortlessly craft websites and apps by chatting with AI. Model
               agnostic, open source, and pay-per-use.
             </p>
@@ -34,7 +34,7 @@ const Footer = memo(function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="GitHub"
-                className="w-9 h-9 rounded-lg bg-neutral-800/60 border border-white/10 flex items-center justify-center text-neutral-400 hover:text-white hover:bg-neutral-700/60 transition-all duration-200"
+                className="w-9 h-9 rounded-lg bg-secondary/60 border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-all duration-200"
               >
                 <svg
                   className="w-4 h-4"
@@ -51,7 +51,7 @@ const Footer = memo(function Footer() {
               <a
                 href="mailto:support@craftjs.dev"
                 aria-label="Email"
-                className="w-9 h-9 rounded-lg bg-neutral-800/60 border border-white/10 flex items-center justify-center text-neutral-400 hover:text-white hover:bg-neutral-700/60 transition-all duration-200"
+                className="w-9 h-9 rounded-lg bg-secondary/60 border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-all duration-200"
               >
                 <svg
                   className="w-4 h-4"
@@ -69,7 +69,7 @@ const Footer = memo(function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="X"
-                className="w-9 h-9 rounded-lg bg-neutral-800/60 border border-white/10 flex items-center justify-center text-neutral-400 hover:text-white hover:bg-neutral-700/60 transition-all duration-200"
+                className="w-9 h-9 rounded-lg bg-secondary/60 border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-all duration-200"
               >
                 <svg
                   className="w-4 h-4"
@@ -84,7 +84,7 @@ const Footer = memo(function Footer() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Discord"
-                className="w-9 h-9 rounded-lg bg-neutral-800/60 border border-white/10 flex items-center justify-center text-neutral-400 hover:text-white hover:bg-neutral-700/60 transition-all duration-200"
+                className="w-9 h-9 rounded-lg bg-secondary/60 border border-border flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-secondary/60 transition-all duration-200"
               >
                 <svg
                   className="w-4 h-4"
@@ -99,14 +99,14 @@ const Footer = memo(function Footer() {
 
           {/* Product */}
           <div className="space-y-4">
-            <h3 className="text-white font-medium text-sm">Product</h3>
+            <h3 className="text-foreground font-medium text-sm">Product</h3>
             <ul className="space-y-3">
               <li>
                 <a
                   href="https://github.com/sudheerdotai/craft"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 text-neutral-400 hover:text-white transition-colors text-sm"
+                  className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground transition-colors text-sm"
                 >
                   GitHub
                   <ExternalLink className="w-4 h-4 opacity-60" />
@@ -115,7 +115,7 @@ const Footer = memo(function Footer() {
               <li>
                 <Link
                   href="/showcase"
-                  className="text-neutral-400 hover:text-white transition-colors text-sm"
+                  className="text-muted-foreground hover:text-foreground transition-colors text-sm"
                 >
                   Showcase
                 </Link>
@@ -123,7 +123,7 @@ const Footer = memo(function Footer() {
               <li>
                 <Link
                   href="/pricing"
-                  className="text-neutral-400 hover:text-white transition-colors text-sm"
+                  className="text-muted-foreground hover:text-foreground transition-colors text-sm"
                 >
                   Pricing
                 </Link>
@@ -131,7 +131,7 @@ const Footer = memo(function Footer() {
               <li>
                 <Link
                   href="/features"
-                  className="text-neutral-400 hover:text-white transition-colors text-sm"
+                  className="text-muted-foreground hover:text-foreground transition-colors text-sm"
                 >
                   Features
                 </Link>
@@ -141,12 +141,12 @@ const Footer = memo(function Footer() {
 
           {/* Resources */}
           <div className="space-y-4">
-            <h3 className="text-white font-medium text-sm">Resources</h3>
+            <h3 className="text-foreground font-medium text-sm">Resources</h3>
             <ul className="space-y-3">
               <li>
                 <Link
                   href="/docs"
-                  className="text-neutral-400 hover:text-white transition-colors text-sm"
+                  className="text-muted-foreground hover:text-foreground transition-colors text-sm"
                 >
                   Documentation
                 </Link>
@@ -154,7 +154,7 @@ const Footer = memo(function Footer() {
               <li>
                 <Link
                   href="/tutorials"
-                  className="text-neutral-400 hover:text-white transition-colors text-sm"
+                  className="text-muted-foreground hover:text-foreground transition-colors text-sm"
                 >
                   Tutorials
                 </Link>
@@ -162,7 +162,7 @@ const Footer = memo(function Footer() {
               <li>
                 <Link
                   href="/blog"
-                  className="text-neutral-400 hover:text-white transition-colors text-sm"
+                  className="text-muted-foreground hover:text-foreground transition-colors text-sm"
                 >
                   Blog
                 </Link>
@@ -170,7 +170,7 @@ const Footer = memo(function Footer() {
               <li>
                 <Link
                   href="/community"
-                  className="text-neutral-400 hover:text-white transition-colors text-sm"
+                  className="text-muted-foreground hover:text-foreground transition-colors text-sm"
                 >
                   Community
                 </Link>
@@ -180,12 +180,12 @@ const Footer = memo(function Footer() {
 
           {/* Company */}
           <div className="space-y-4">
-            <h3 className="text-white font-medium text-sm">Company</h3>
+            <h3 className="text-foreground font-medium text-sm">Company</h3>
             <ul className="space-y-3">
               <li>
                 <Link
                   href="/about"
-                  className="text-neutral-400 hover:text-white transition-colors text-sm"
+                  className="text-muted-foreground hover:text-foreground transition-colors text-sm"
                 >
                   About Us
                 </Link>
@@ -193,7 +193,7 @@ const Footer = memo(function Footer() {
               <li>
                 <Link
                   href="/contact"
-                  className="text-neutral-400 hover:text-white transition-colors text-sm"
+                  className="text-muted-foreground hover:text-foreground transition-colors text-sm"
                 >
                   Contact
                 </Link>
@@ -203,7 +203,7 @@ const Footer = memo(function Footer() {
                   href="https://craftlabs.tech/privacy"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-neutral-400 hover:text-white transition-colors text-sm"
+                  className="text-muted-foreground hover:text-foreground transition-colors text-sm"
                 >
                   Privacy
                 </a>
@@ -213,7 +213,7 @@ const Footer = memo(function Footer() {
                   href="https://craftlabs.tech/terms"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-neutral-400 hover:text-white transition-colors text-sm"
+                  className="text-muted-foreground hover:text-foreground transition-colors text-sm"
                 >
                   Terms
                 </a>
@@ -223,7 +223,7 @@ const Footer = memo(function Footer() {
         </div>
 
         {/* Bottom Section */}
-        <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-sm text-neutral-400">
+        <div className="border-t border-border pt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 text-sm text-muted-foreground">
           <div className="flex flex-col sm:flex-row sm:justify-center sm:items-center gap-2 sm:gap-4">
             <div className="flex items-center gap-1">
               &copy; {new Date().getFullYear()}
@@ -231,7 +231,7 @@ const Footer = memo(function Footer() {
                 href="https://craftlabs.tech"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:text-white transition-colors"
+                className="hover:text-foreground transition-colors"
               >
                 Craft Labs.
               </a>
@@ -239,8 +239,9 @@ const Footer = memo(function Footer() {
             </div>
           </div>
           {/* <span className="hidden sm:inline-block text-neutral-600">•</span> */}
-          <span className="text-neutral-500">
-            Crafted with <span className="text-red-400">♥</span> for builders
+          <span className="text-muted-foreground">
+            Crafted with <span className="text-destructive">♥</span> for
+            builders
           </span>
         </div>
       </div>

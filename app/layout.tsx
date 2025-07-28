@@ -24,14 +24,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`font-roboto antialiased`}>
         <SessionProvider>
-          <ThemeProvider
-            // attribute="class"
-            defaultTheme="system"
-            // enableSystem
-            // disableTransitionOnChange
-          >
-            {children}
-          </ThemeProvider>
+          <ThemeProvider defaultTheme="system">{children}</ThemeProvider>
           <Analytics />
         </SessionProvider>
       </body>

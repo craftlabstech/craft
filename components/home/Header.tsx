@@ -70,18 +70,18 @@ export default function Header() {
 
   return (
     <header
-      className={`fixed top-0 z-50 w-full transition-all duration-300 border-b border-neutral-800 ${
-        isScrolled ? "bg-neutral-950/80 backdrop-blur-xl" : "bg-transparent"
+      className={`fixed top-0 z-50 w-full transition-all duration-300 border-b border-border ${
+        isScrolled ? "bg-background/80 backdrop-blur-xl" : "bg-transparent"
       }`}
     >
       <div className="flex h-12 sm:h-14 items-center justify-between px-2 sm:px-4">
         {/* Logo */}
         <div className="flex items-center">
           <Link href="/" className="flex items-center gap-2">
-            <span className="text-lg sm:text-2xl font-roboto tracking-wider font-medium text-white">
+            <span className="text-lg sm:text-2xl font-roboto tracking-wider font-medium text-foreground">
               Craft
             </span>
-            <span className="px-3 py-0.5 rounded-full border border-neutral-600 text-xs font-light text-neutral-200 uppercase tracking-wider align-middle">
+            <span className="px-3 py-0.5 rounded-full border border-border text-xs font-light text-muted-foreground uppercase tracking-wider align-middle">
               Beta
             </span>
           </Link>
@@ -113,16 +113,16 @@ export default function Header() {
                 alt="Profile picture"
                 width={32}
                 height={32}
-                className="rounded-full hover:ring-2 hover:ring-purple-500 transition-all duration-200"
+                className="rounded-full hover:ring-2 hover:ring-ring transition-all duration-200"
                 onError={handleImageError}
                 priority
               />
 
               {/* Settings popup */}
               {settingsOpen && (
-                <div className="absolute top-full right-0 mt-2 w-64 bg-gray-900/95 backdrop-blur-md rounded-md shadow-2xl border border-gray-700/50 z-10">
+                <div className="absolute top-full right-0 mt-2 w-64 bg-popover backdrop-blur-md rounded-md shadow-2xl border border-border z-10">
                   {/* User profile info */}
-                  <div className="p-4 border-b border-gray-700">
+                  <div className="p-4 border-b border-border">
                     <div className="flex items-center">
                       <NextImage
                         src={
@@ -137,28 +137,28 @@ export default function Header() {
                         onError={handleImageError}
                       />
                       <div className="overflow-hidden">
-                        <p className="text-sm font-medium text-white truncate">
+                        <p className="text-sm font-medium text-popover-foreground truncate">
                           {session.user?.name || "Unknown User"}
                         </p>
-                        <p className="text-xs text-gray-400 truncate">
+                        <p className="text-xs text-muted-foreground truncate">
                           {session.user?.email || "No email"}
                         </p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="py-1 divide-y divide-gray-700">
+                  <div className="py-1 divide-y divide-border">
                     <div className="py-1">
                       <Link
                         href="/profile"
-                        className="flex items-center px-3 py-2 text-sm text-gray-300 hover:bg-gray-700 transition-colors"
+                        className="flex items-center px-3 py-2 text-sm text-popover-foreground hover:bg-accent transition-colors"
                       >
                         <User className="mr-2 h-4 w-4" />
                         Profile
                       </Link>
                       <Link
                         href="/settings"
-                        className="flex items-center px-3 py-2 text-sm text-gray-300 hover:bg-gray-700 transition-colors"
+                        className="flex items-center px-3 py-2 text-sm text-popover-foreground hover:bg-accent transition-colors"
                       >
                         <Settings className="mr-2 h-4 w-4" />
                         Settings
@@ -167,7 +167,7 @@ export default function Header() {
 
                     <div className="py-1">
                       <div className="px-3 py-2">
-                        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                           Theme
                         </p>
                         <div
@@ -179,8 +179,8 @@ export default function Header() {
                             onClick={() => handleThemeChange("system")}
                             className={`p-1.5 rounded-md transition-colors ${
                               theme === "system"
-                                ? "bg-purple-600"
-                                : "bg-gray-700 hover:bg-gray-600"
+                                ? "bg-primary text-primary-foreground"
+                                : "bg-secondary hover:bg-accent"
                             }`}
                             aria-label="System theme"
                           >
@@ -190,8 +190,8 @@ export default function Header() {
                             onClick={() => handleThemeChange("light")}
                             className={`p-1.5 rounded-md transition-colors ${
                               theme === "light"
-                                ? "bg-purple-600"
-                                : "bg-gray-700 hover:bg-gray-600"
+                                ? "bg-primary text-primary-foreground"
+                                : "bg-secondary hover:bg-accent"
                             }`}
                             aria-label="Light theme"
                           >
@@ -201,8 +201,8 @@ export default function Header() {
                             onClick={() => handleThemeChange("dark")}
                             className={`p-1.5 rounded-md transition-colors ${
                               theme === "dark"
-                                ? "bg-purple-600"
-                                : "bg-gray-700 hover:bg-gray-600"
+                                ? "bg-primary text-primary-foreground"
+                                : "bg-secondary hover:bg-accent"
                             }`}
                             aria-label="Dark theme"
                           >
@@ -214,14 +214,14 @@ export default function Header() {
                       <div className="px-3 py-2">
                         <label
                           htmlFor="language-select"
-                          className="text-xs font-semibold text-gray-400 uppercase tracking-wider"
+                          className="text-xs font-semibold text-muted-foreground uppercase tracking-wider"
                         >
                           Language
                         </label>
                         <div className="mt-2">
                           <select
                             id="language-select"
-                            className="text-sm bg-gray-700 border border-gray-600 rounded-md py-1 px-2 w-full focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            className="text-sm bg-secondary border border-border rounded-md py-1 px-2 w-full focus:outline-none focus:ring-2 focus:ring-ring"
                             defaultValue="en"
                           >
                             <option value="en">English</option>
@@ -236,7 +236,7 @@ export default function Header() {
                     <div className="py-1">
                       <button
                         onClick={handleSignOut}
-                        className="flex w-full items-center px-3 py-2 text-sm text-red-400 hover:bg-gray-700 transition-colors"
+                        className="flex w-full items-center px-3 py-2 text-sm text-destructive hover:bg-accent transition-colors"
                       >
                         <LogOut className="mr-2 h-4 w-4" />
                         Sign out
@@ -250,7 +250,7 @@ export default function Header() {
             /* Sign in button in header when not logged in */
             <button
               onClick={handleSignIn}
-              className="text-xs text-center sm:text-sm rounded-full bg-white px-3 sm:px-4 py-1.5 sm:py-2 font-medium text-black transition-all duration-200 hover:opacity-90 focus:outline-none shadow-lg cursor-pointer"
+              className="text-xs text-center sm:text-sm rounded-full bg-primary text-primary-foreground px-3 sm:px-4 py-1.5 sm:py-2 font-medium transition-all duration-200 hover:opacity-90 focus:outline-none shadow-lg cursor-pointer"
             >
               <span>Sign in</span>
             </button>
