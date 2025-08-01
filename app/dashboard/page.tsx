@@ -4,7 +4,7 @@ import { useSession } from "next-auth/react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { signOut } from "next-auth/react";
-import { User, Mail, Briefcase, Building } from "lucide-react";
+import { User, Mail } from "lucide-react";
 
 export default function Dashboard() {
   const { data: session } = useSession();
@@ -33,11 +33,14 @@ export default function Dashboard() {
           <CardContent className="space-y-4">
             <div className="flex items-center space-x-4">
               {session.user?.image && (
-                <img
-                  src={session.user.image}
-                  alt="Profile"
-                  className="w-16 h-16 rounded-full"
-                />
+                <>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={session.user.image}
+                    alt="Profile"
+                    className="w-16 h-16 rounded-full"
+                  />
+                </>
               )}
               <div>
                 <h3 className="text-lg font-semibold">{session.user?.name}</h3>

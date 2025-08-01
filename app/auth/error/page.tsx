@@ -2,9 +2,9 @@
 
 import { Suspense } from "react";
 import { Loader2 } from "lucide-react";
-import VerifyRequestContent from "./verify-request-content";
+import AuthErrorContent from "./auth-error-content";
 
-export default function VerifyRequest() {
+export default function AuthError() {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center bg-background">
@@ -14,7 +14,7 @@ export default function VerifyRequest() {
         </div>
       </div>
     }>
-      <VerifyRequestContent />
+      <AuthErrorContent />
     </Suspense>
   );
 }

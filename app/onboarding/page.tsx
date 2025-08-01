@@ -94,7 +94,7 @@ export default function Onboarding() {
         <CardHeader className="text-center">
           <CardTitle className="text-3xl">Welcome to Craft!</CardTitle>
           <p className="text-muted-foreground">
-            Let's set up your profile to get started
+            Let&apos;s set up your profile to get started
           </p>
           <div className="flex justify-center mt-4">
             <div className="flex space-x-2">

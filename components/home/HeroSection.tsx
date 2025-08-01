@@ -3,9 +3,6 @@
 import React, { useRef, useEffect, useCallback, useState } from "react";
 import { ArrowRight, ImagePlus, Sparkles, X } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
-import { useSession } from "next-auth/react";
-import { Button } from "@/components/ui/button";
 
 // Model configuration
 const modelOptions = [
@@ -27,7 +24,6 @@ const modelOptions = [
 ];
 
 export default function HeroSection() {
-  const { data: session } = useSession();
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [selectedModel, setSelectedModel] = useState("best");
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);

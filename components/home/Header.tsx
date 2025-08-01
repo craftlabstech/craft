@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Settings, LogOut, User, Monitor, Sun, Moon } from "lucide-react";
 import Link from "next/link";
 import NextImage from "next/image";
-import { useSession, signIn, signOut } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { useTheme } from "../theme-provider";
 
 export default function Header() {
