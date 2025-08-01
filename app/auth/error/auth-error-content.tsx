@@ -99,6 +99,12 @@ export default function AuthErrorContent() {
           details:
             "You must be signed in to access this page. Please sign in and try again.",
         };
+      case "DatabaseError":
+        return {
+          message: "Service Temporarily Unavailable",
+          details:
+            "Our authentication service is temporarily unavailable. Please try again in a few minutes.",
+        };
       case "Default":
       default:
         return {

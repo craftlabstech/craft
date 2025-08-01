@@ -67,6 +67,8 @@ export default function SignInForm() {
         return "Access denied. You don't have permission to sign in.";
       case "Verification":
         return "The verification token has expired or has already been used.";
+      case "DatabaseError":
+        return "Authentication service is temporarily unavailable. Please try again in a few minutes.";
       default:
         return "An error occurred during sign in. Please try again.";
     }

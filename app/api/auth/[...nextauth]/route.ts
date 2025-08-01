@@ -1,28 +1,30 @@
-import NextAuth from "@/lib/auth";
-import { handleApiError, databaseBreaker } from "@/lib/api-error-handler";
-import { NextRequest, NextResponse } from "next/server";
+import NextAuth from "next-auth";
+import { authOptions } from "@/lib/auth";
+import { NextRequest } from "next/server";
 
-async function authHandler(req: NextRequest) {
+const handler = async (req: NextRequest, context: any) => {
     try {
-        // Use circuit breaker for database operations
-        const response = await databaseBreaker.execute(async () => {
-            return NextAuth(req as NextRequest);
-        });
-
-        return response;
-    } catch (error) {
+        return await NextAuth(authOptions)(req, context);
+    } catch (error: any) {
         console.error("NextAuth error:", error);
 
-        // For API routes, we need to handle errors gracefully
-        if (req.url?.includes('/api/auth/')) {
-            return handleApiError(error);
+        // Handle database-related errors
+        if (error?.code === 'P1001' || error?.code === 'P2021') {
+            // Redirect to database setup page
+            const url = new URL('/auth/database-setup', req.url);
+            return Response.redirect(url.toString(), 302);
         }
 
-        // For auth pages, redirect to error page
-        const url = new URL('/auth/error', req.url);
-        url.searchParams.set('error', 'Configuration');
-        return NextResponse.redirect(url);
-    }
-}
+        // Handle other known errors
+        if (error?.message?.includes('Service temporarily unavailable')) {
+            const url = new URL('/auth/error?error=DatabaseError', req.url);
+            return Response.redirect(url.toString(), 302);
+        }
 
-export { authHandler as GET, authHandler as POST };
+        // For unknown errors, fallback to generic error page
+        const url = new URL('/auth/error?error=Configuration', req.url);
+        return Response.redirect(url.toString(), 302);
+    }
+};
+
+export { handler as GET, handler as POST };

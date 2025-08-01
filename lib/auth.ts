@@ -2,13 +2,13 @@ import NextAuth, { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import GitHubProvider from "next-auth/providers/github";
 import EmailProvider from "next-auth/providers/email";
-import { PrismaAdapter } from "@next-auth/prisma-adapter";
+import { createResilientPrismaAdapter } from "./resilient-prisma-adapter";
 import { prisma } from "@/lib/prisma";
 import { sendEmailWithRetry, validateEmailDeliverability } from "./email";
 import { databaseBreaker, ExternalServiceError } from "./api-error-handler";
 
 export const authOptions: NextAuthOptions = {
-  adapter: PrismaAdapter(prisma),
+  adapter: createResilientPrismaAdapter(prisma),
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -145,7 +145,18 @@ export const authOptions: NextAuthOptions = {
         return true;
       } catch (error) {
         console.error("Error in signIn callback:", error);
-        return false;
+
+        // Handle specific database errors
+        if (error && typeof error === 'object' && 'code' in error) {
+          const prismaError = error as { code: string };
+          if (prismaError.code === 'P1001' || prismaError.code === 'P2021') {
+            // Database connection or schema issues
+            console.warn('Database not available during sign in');
+            return "/auth/database-setup";
+          }
+        }
+
+        return "/auth/error";
       }
     },
     async redirect({ url, baseUrl }) {
@@ -193,4 +204,5 @@ export const authOptions: NextAuthOptions = {
   debug: process.env.NODE_ENV === "development",
 };
 
-export default NextAuth(authOptions);
+// Don't export NextAuth instance, just export the options
+// The NextAuth instance should be created in the route handler
