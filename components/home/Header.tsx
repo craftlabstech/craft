@@ -33,11 +33,6 @@ export default function Header() {
     setImageError(true);
   }, []);
 
-  const handleSignIn = useCallback(() => {
-    // Redirect to our custom signin page instead of direct Google auth
-    window.location.href = "/auth/signin";
-  }, []);
-
   const handleSignOut = useCallback(() => {
     signOut();
   }, []);
@@ -255,12 +250,12 @@ export default function Header() {
               )}
             </div>
           ) : (
-            /* Theme switcher and sign in button when not logged in */
+            /* Theme switcher and auth buttons when not logged in */
             <>
               {/* Single theme toggle button */}
               <button
                 onClick={cycleTheme}
-                className="p-1.5 rounded-full transition-colors hover:border-2 bg-muted/50 hover:bg-muted hover:border-primary text-muted-foreground hover:text-foreground"
+                className="p-1.5 rounded-full transition-colors border border-transparent bg-muted/50 hover:bg-muted hover:border-border text-muted-foreground hover:text-foreground"
                 aria-label={`Current theme: ${theme}. Click to switch theme`}
                 title={`Current: ${
                   theme.charAt(0).toUpperCase() + theme.slice(1)
@@ -273,13 +268,19 @@ export default function Header() {
                 {theme === "dark" && <Moon className="h-3 w-3 sm:h-4 sm:w-4" />}
               </button>
 
-              {/* Sign in button */}
-              <button
-                onClick={handleSignIn}
-                className="text-xs text-center sm:text-sm rounded-full bg-primary text-primary-foreground border-2 border-primary hover:border-primary/80 px-3 sm:px-4 py-1.5 sm:py-2 font-medium transition-all duration-200 hover:opacity-90 focus:outline-none cursor-pointer"
-              >
-                <span>Sign in</span>
-              </button>
+              {/* Sign in button - outlined style */}
+              <Link href="/auth/signin">
+                <button className="text-xs text-center sm:text-sm rounded-full border border-border text-foreground hover:bg-muted hover:text-foreground hover:border-border px-3 sm:px-4 py-1.5 sm:py-2 font-medium transition-all duration-200 focus:outline-none cursor-pointer">
+                  <span>Sign in</span>
+                </button>
+              </Link>
+
+              {/* Sign up button - filled style */}
+              <Link href="/auth/signup">
+                <button className="text-xs text-center sm:text-sm rounded-full bg-primary text-primary-foreground border border-primary hover:bg-primary/90 hover:border-primary/80 px-3 sm:px-4 py-1.5 sm:py-2 font-medium transition-all duration-200 focus:outline-none cursor-pointer">
+                  <span>Sign up</span>
+                </button>
+              </Link>
             </>
           )}
         </div>

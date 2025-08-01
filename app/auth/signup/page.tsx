@@ -270,13 +270,14 @@ export default function SignUp() {
             </Button>
           </form>
 
-          <div className="text-center text-sm text-muted-foreground">
-            Already have an account?{" "}
-            <Link
-              href="/auth/signin"
-              className="underline underline-offset-4 hover:text-primary"
-            >
-              Sign in
+          <div className="text-center space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Already have an account?
+            </p>
+            <Link href="/auth/signin">
+              <Button variant="outline" className="w-full">
+                Sign in instead
+              </Button>
             </Link>
           </div>
         </CardContent>

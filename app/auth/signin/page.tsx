@@ -158,13 +158,14 @@ export default function SignIn() {
             </Button>
           </form>
 
-          <div className="text-center text-sm text-muted-foreground">
-            Don't have an account?{" "}
-            <Link
-              href="/auth/signup"
-              className="underline underline-offset-4 hover:text-primary"
-            >
-              Sign up
+          <div className="text-center space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Don't have an account?
+            </p>
+            <Link href="/auth/signup">
+              <Button variant="outline" className="w-full">
+                Create new account
+              </Button>
             </Link>
           </div>
         </CardContent>
