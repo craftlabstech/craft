@@ -34,7 +34,8 @@ export default function Header() {
   }, []);
 
   const handleSignIn = useCallback(() => {
-    signIn("google", { redirectTo: "/" });
+    // Redirect to our custom signin page instead of direct Google auth
+    window.location.href = "/auth/signin";
   }, []);
 
   const handleSignOut = useCallback(() => {

@@ -1,4 +1,5 @@
-import { handlers } from "@/lib/auth";
+import NextAuth from "@/lib/auth";
 
-export const GET = handlers.GET;
-export const POST = handlers.POST;
+const handler = NextAuth;
+
+export { handler as GET, handler as POST };

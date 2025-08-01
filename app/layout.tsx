@@ -3,7 +3,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/react";
 import { ThemeProvider } from "@/components/theme-provider";
-import { SessionProvider } from "next-auth/react";
+import SessionProviderWrapper from "@/components/providers/session-provider";
 
 export const metadata: Metadata = {
   title: "Craft",
@@ -23,10 +23,10 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`font-roboto antialiased`}>
-        <SessionProvider>
+        <SessionProviderWrapper>
           <ThemeProvider defaultTheme="system">{children}</ThemeProvider>
           <Analytics />
-        </SessionProvider>
+        </SessionProviderWrapper>
       </body>
     </html>
   );
