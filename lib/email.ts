@@ -3,7 +3,7 @@ import { emailServiceBreaker, ExternalServiceError } from './api-error-handler';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
-export async function sendOTPEmail(email: string, url: string) {
+export async function sendOTPEmail(email: string, url: string, emailType: 'signin' | 'password-reset' = 'signin') {
   try {
     // Validate inputs
     if (!email || !url) {
@@ -21,8 +21,8 @@ export async function sendOTPEmail(email: string, url: string) {
       const result = await resend.emails.send({
         from: process.env.EMAIL_FROM || 'onboarding@resend.dev',
         to: email,
-        subject: 'Sign in to Craft',
-        html: generateEmailTemplate(url),
+        subject: emailType === 'password-reset' ? 'Reset your password' : 'Sign in to Craft',
+        html: generateEmailTemplate(url, emailType),
       });
 
       if (!result.data?.id) {
@@ -32,7 +32,7 @@ export async function sendOTPEmail(email: string, url: string) {
       return result;
     });
 
-    console.log(`Verification email sent successfully to ${email}`);
+    console.log(`${emailType === 'password-reset' ? 'Password reset' : 'Verification'} email sent successfully to ${email}`);
   } catch (error) {
     console.error('Error sending email:', error);
 
@@ -61,7 +61,9 @@ export async function sendOTPEmail(email: string, url: string) {
   }
 }
 
-function generateEmailTemplate(url: string): string {
+function generateEmailTemplate(url: string, emailType: 'signin' | 'password-reset' = 'signin'): string {
+  const isPasswordReset = emailType === 'password-reset';
+
   return `
         <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px;">
             <!-- Header -->
@@ -71,15 +73,20 @@ function generateEmailTemplate(url: string): string {
 
             <!-- Main Content -->
             <div style="background-color: #ffffff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 32px;">
-                <h2 style="color: #1a1a1a; font-size: 20px; font-weight: 600; margin: 0 0 16px 0;">Sign in to your account</h2>
+                <h2 style="color: #1a1a1a; font-size: 20px; font-weight: 600; margin: 0 0 16px 0;">
+                  ${isPasswordReset ? 'Reset your password' : 'Sign in to your account'}
+                </h2>
                 
                 <p style="color: #4b5563; font-size: 16px; line-height: 1.5; margin: 0 0 24px 0;">
-                    Click the button below to securely sign in to your Craft account:
+                    ${isPasswordReset
+      ? 'Click the button below to reset your password. This link will expire in 1 hour for security.'
+      : 'Click the button below to securely sign in to your Craft account:'
+    }
                 </p>
                 
                 <div style="text-align: center; margin: 32px 0;">
                     <a href="${url}" style="background-color: #3b82f6; color: #ffffff; padding: 12px 32px; text-decoration: none; border-radius: 6px; display: inline-block; font-weight: 500; font-size: 16px;">
-                        Sign in to Craft
+                        ${isPasswordReset ? 'Reset Password' : 'Sign in to Craft'}
                     </a>
                 </div>
                 
@@ -93,13 +100,14 @@ function generateEmailTemplate(url: string): string {
             <div style="margin-top: 32px; padding-top: 24px; border-top: 1px solid #e5e7eb;">
                 <p style="color: #9ca3af; font-size: 12px; line-height: 1.4; margin: 0;">
                     <strong>Security Notice:</strong><br>
-                    • This link will expire in 24 hours for your security<br>
-                    • If you didn't request this email, you can safely ignore it<br>
-                    • Never share this link with anyone else
+                    ${isPasswordReset
+      ? '• This password reset link will expire in 1 hour for your security<br>• If you didn\'t request this password reset, you can safely ignore this email<br>• Never share this link with anyone else'
+      : '• This link will expire in 24 hours for your security<br>• If you didn\'t request this email, you can safely ignore it<br>• Never share this link with anyone else'
+    }
                 </p>
                 
                 <p style="color: #9ca3af; font-size: 12px; margin: 16px 0 0 0;">
-                    This email was sent to you because a sign-in was requested for your Craft account. If you have any questions, please contact our support team.
+                    This email was sent to you because ${isPasswordReset ? 'a password reset was requested' : 'a sign-in was requested'} for your Craft account. If you have any questions, please contact our support team.
                 </p>
             </div>
         </div>
@@ -142,13 +150,14 @@ export async function sendEmailWithRetry(
   email: string,
   url: string,
   maxRetries: number = 3,
-  delay: number = 1000
+  delay: number = 1000,
+  emailType: 'signin' | 'password-reset' = 'signin'
 ): Promise<void> {
   let lastError: Error;
 
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      await sendOTPEmail(email, url);
+      await sendOTPEmail(email, url, emailType);
       return; // Success
     } catch (error) {
       lastError = error as Error;

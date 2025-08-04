@@ -7,12 +7,20 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { User, Briefcase, Building, ArrowRight, ArrowLeft } from "lucide-react";
+import {
+  User,
+  Briefcase,
+  Building,
+  ArrowRight,
+  ArrowLeft,
+  Camera,
+} from "lucide-react";
+import ProfilePictureUpload from "@/components/profile-picture-upload";
 
 export default function Onboarding() {
   const { data: session, update } = useSession();
   const router = useRouter();
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(0); // Start from 0 for profile picture
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     bio: "",
@@ -30,7 +38,18 @@ export default function Onboarding() {
       router.push("/");
       return;
     }
-  }, [session, router]);
+
+    // Auto-skip profile picture step for OAuth users
+    const hasOAuthImage = Boolean(
+      session.user?.image &&
+        (session.user.image.includes("avatars.githubusercontent.com") ||
+          session.user.image.includes("lh3.googleusercontent.com"))
+    );
+
+    if (hasOAuthImage && step === 0) {
+      setStep(1);
+    }
+  }, [session, router, step]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({
@@ -46,7 +65,7 @@ export default function Onboarding() {
   };
 
   const handleBack = () => {
-    if (step > 1) {
+    if (step > 0) {
       setStep(step - 1);
     }
   };
@@ -86,7 +105,18 @@ export default function Onboarding() {
     return null;
   }
 
-  const totalSteps = 3;
+  const totalSteps = 4; // Updated to include profile picture step
+
+  // Check if user has OAuth provider (don't show profile upload for OAuth users)
+  const hasOAuthImage = Boolean(
+    session.user?.image &&
+      (session.user.image.includes("avatars.githubusercontent.com") ||
+        session.user.image.includes("lh3.googleusercontent.com"))
+  );
+
+  // Skip profile picture step for OAuth users
+  const shouldSkipProfileStep = hasOAuthImage;
+  const effectiveStep = shouldSkipProfileStep && step === 0 ? 1 : step;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
@@ -110,7 +140,23 @@ export default function Onboarding() {
           </div>
         </CardHeader>
         <CardContent className="space-y-6">
-          {step === 1 && (
+          {effectiveStep === 0 && !shouldSkipProfileStep && (
+            <div className="space-y-6">
+              <div className="text-center">
+                <Camera className="h-12 w-12 mx-auto text-primary mb-4" />
+                <h3 className="text-xl font-semibold">Add a profile picture</h3>
+                <p className="text-muted-foreground">
+                  Upload a photo to personalize your profile (optional)
+                </p>
+              </div>
+
+              <div className="flex justify-center">
+                <ProfilePictureUpload className="w-full max-w-sm" />
+              </div>
+            </div>
+          )}
+
+          {effectiveStep === 1 && (
             <div className="space-y-6">
               <div className="text-center">
                 <User className="h-12 w-12 mx-auto text-primary mb-4" />
@@ -138,7 +184,7 @@ export default function Onboarding() {
             </div>
           )}
 
-          {step === 2 && (
+          {effectiveStep === 2 && (
             <div className="space-y-6">
               <div className="text-center">
                 <Briefcase className="h-12 w-12 mx-auto text-primary mb-4" />
@@ -165,7 +211,7 @@ export default function Onboarding() {
             </div>
           )}
 
-          {step === 3 && (
+          {effectiveStep === 3 && (
             <div className="space-y-6">
               <div className="text-center">
                 <Building className="h-12 w-12 mx-auto text-primary mb-4" />
@@ -196,16 +242,16 @@ export default function Onboarding() {
             <Button
               variant="outline"
               onClick={handleBack}
-              disabled={step === 1}
+              disabled={step === 0 || (shouldSkipProfileStep && step === 1)}
               className="flex items-center"
             >
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back
             </Button>
 
-            {step < totalSteps ? (
+            {effectiveStep < 3 ? (
               <Button onClick={handleNext} className="flex items-center">
-                Next
+                {effectiveStep === 0 ? "Skip" : "Next"}
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
             ) : (
@@ -220,7 +266,7 @@ export default function Onboarding() {
             )}
           </div>
 
-          {step === totalSteps && (
+          {effectiveStep === 3 && (
             <div className="text-center text-sm text-muted-foreground">
               You can always update your profile later in settings
             </div>

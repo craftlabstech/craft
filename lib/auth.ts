@@ -1,11 +1,12 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import GitHubProvider from "next-auth/providers/github";
-import EmailProvider from "next-auth/providers/email";
+import CredentialsProvider from "next-auth/providers/credentials";
 import { createResilientPrismaAdapter } from "./resilient-prisma-adapter";
 import { prisma } from "@/lib/prisma";
 import { sendEmailWithRetry, validateEmailDeliverability } from "./email";
 import { databaseBreaker, ExternalServiceError } from "./api-error-handler";
+import bcrypt from "bcryptjs";
 
 export const authOptions: NextAuthOptions = {
   adapter: createResilientPrismaAdapter(prisma),
@@ -25,28 +26,46 @@ export const authOptions: NextAuthOptions = {
       clientId: process.env.GITHUB_CLIENT_ID!,
       clientSecret: process.env.GITHUB_CLIENT_SECRET!,
     }),
-    EmailProvider({
-      from: process.env.EMAIL_FROM!,
-      maxAge: 24 * 60 * 60, // 24 hours
-      sendVerificationRequest: async ({ identifier, url }) => {
-        try {
-          // Validate email deliverability
-          if (!await validateEmailDeliverability(identifier)) {
-            throw new ExternalServiceError('Invalid or undeliverable email address');
-          }
-
-          // Send email with retry mechanism
-          await sendEmailWithRetry(identifier, url);
-        } catch (error) {
-          console.error("Failed to send verification email:", error);
-
-          if (error instanceof ExternalServiceError) {
-            throw error;
-          }
-
-          throw new ExternalServiceError("Failed to send verification email");
-        }
+    CredentialsProvider({
+      id: "credentials",
+      name: "credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" }
       },
+      async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          return null;
+        }
+
+        try {
+          const user = await databaseBreaker.execute(async () => {
+            return await (prisma as any).user.findUnique({
+              where: { email: credentials.email.toLowerCase() },
+            });
+          });
+
+          if (!user || !user.password) {
+            return null;
+          }
+
+          const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
+
+          if (!isPasswordValid) {
+            return null;
+          }
+
+          return {
+            id: user.id,
+            email: user.email,
+            name: user.name,
+            image: user.image,
+          };
+        } catch (error) {
+          console.error("Error during authentication:", error);
+          return null;
+        }
+      }
     }),
   ],
   pages: {
