@@ -1,4 +1,4 @@
-import { S3Client, PutObjectCommand, DeleteObjectCommand } from "@aws-sdk/client-s3";
+import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
 
 // Initialize S3 client
@@ -35,7 +35,7 @@ export class S3Service {
                     Key: key,
                     Body: file,
                     ContentType: contentType,
-                    ACL: "public-read", // Make the file publicly accessible
+                    // Removed ACL parameter - rely on bucket policy for public access
                 },
             });
 

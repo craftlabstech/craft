@@ -7,23 +7,31 @@ export default withAuth(
         const token = req.nextauth.token;
 
         // Protected routes that require authentication
-        const protectedRoutes = ["/dashboard", "/profile", "/settings"];
+        const protectedRoutes = ["/profile", "/settings"];
         const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
 
         // Public auth routes
-        const authRoutes = ["/auth/signin", "/auth/signup", "/auth/verify-request"];
+        const authRoutes = ["/auth/signin", "/auth/signup", "/auth/verify-request", "/auth/verify-email"];
         const isAuthRoute = authRoutes.includes(pathname);
 
         // Onboarding route
         const isOnboardingRoute = pathname === "/onboarding";
 
         // If user is authenticated but trying to access auth routes
-        if (token && isAuthRoute) {
+        if (token && isAuthRoute && token.emailVerified) {
             return NextResponse.redirect(new URL("/", req.url));
         }
 
-        // If user is authenticated but hasn't completed onboarding
-        if (token && !token.onboardingCompleted && !isOnboardingRoute && !isAuthRoute) {
+        // If user is authenticated but email not verified (except for verify-request and verify-email pages)
+        // OAuth users (Google, GitHub) have emailVerified automatically set, so this mainly applies to credential users
+        if (token && !token.emailVerified && !pathname.startsWith("/auth/verify") && !pathname.startsWith("/api/auth")) {
+            return NextResponse.redirect(new URL("/auth/verify-request", req.url));
+        }
+
+        // If user is authenticated with verified email but hasn't completed onboarding
+        // Redirect to onboarding from protected routes, not from home page
+        // OAuth users with verified emails should also be redirected to onboarding if not completed
+        if (token && token.emailVerified && !token.onboardingCompleted && isProtectedRoute) {
             return NextResponse.redirect(new URL("/onboarding", req.url));
         }
 
@@ -40,7 +48,7 @@ export default withAuth(
                 const { pathname } = req.nextUrl;
 
                 // Protected routes require authentication
-                const protectedRoutes = ["/dashboard", "/profile", "/settings"];
+                const protectedRoutes = ["/profile", "/settings"];
                 const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
 
                 if (isProtectedRoute) {

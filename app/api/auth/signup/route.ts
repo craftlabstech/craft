@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
-import { validateEmailDeliverability } from "@/lib/email";
+import { validateEmailDeliverability, sendEmailWithRetry } from "@/lib/email";
 import { databaseBreaker, ExternalServiceError } from "@/lib/api-error-handler";
+import crypto from "crypto";
 
 export async function POST(request: NextRequest) {
     try {
-        const { email, password, name } = await request.json();
+        const { email, password, name, profilePictureUrl } = await request.json();
 
         if (!email || !password) {
             return NextResponse.json(
@@ -74,21 +75,53 @@ export async function POST(request: NextRequest) {
 
         // Create user
         const user = await databaseBreaker.execute(async () => {
-            return await (prisma as any).user.create({
+            return await prisma.user.create({
                 data: {
                     email: normalizedEmail,
                     password: hashedPassword,
                     name: name?.trim() || null,
-                    emailVerified: new Date(), // Auto-verify for password signup
+                    image: profilePictureUrl || null,
+                    emailVerified: null, // Don't auto-verify for password signup
                     onboardingCompleted: false,
                 },
                 select: {
                     id: true,
                     email: true,
                     name: true,
+                    image: true,
                 },
             });
         });
+
+        // Create verification token
+        const verificationToken = crypto.randomUUID();
+        const expires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+        await databaseBreaker.execute(async () => {
+            return await prisma.verificationToken.create({
+                data: {
+                    identifier: normalizedEmail,
+                    token: verificationToken,
+                    expires,
+                },
+            });
+        });
+
+        // Send verification email
+        try {
+            const verificationUrl = `${process.env.NEXTAUTH_URL}/api/auth/verify-email?token=${verificationToken}&email=${encodeURIComponent(normalizedEmail)}`;
+
+            await sendEmailWithRetry(
+                normalizedEmail,
+                verificationUrl,
+                3, // maxRetries
+                1000, // delay
+                'signin' // emailType
+            );
+        } catch (emailError) {
+            console.error("Failed to send verification email:", emailError);
+            // Don't fail the signup if email sending fails
+        }
 
         return NextResponse.json({
             success: true,
@@ -96,6 +129,7 @@ export async function POST(request: NextRequest) {
                 id: user.id,
                 email: user.email,
                 name: user.name,
+                image: user.image,
             },
         });
     } catch (error) {

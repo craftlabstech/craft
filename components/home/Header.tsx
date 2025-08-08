@@ -81,10 +81,10 @@ export default function Header() {
         {/* Logo */}
         <div className="flex items-center">
           <Link href="/" className="flex items-center gap-2">
-            <span className="text-lg sm:text-2xl font-roboto tracking-wider font-medium text-foreground">
+            <span className="text-lg sm:text-2xl font-roboto tracking-tight font-semibold text-foreground">
               Craft
             </span>
-            <span className="px-3 py-0.5 rounded-full border border-border text-xs font-light text-muted-foreground uppercase tracking-wider align-middle">
+            <span className="px-2 py-0.5 rounded-full border border-border text-xs font-light text-muted-foreground uppercase tracking-wider">
               Beta
             </span>
           </Link>

@@ -1,11 +1,10 @@
-import NextAuth, { NextAuthOptions } from "next-auth";
+import { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import GitHubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { createResilientPrismaAdapter } from "./resilient-prisma-adapter";
 import { prisma } from "@/lib/prisma";
-import { sendEmailWithRetry, validateEmailDeliverability } from "./email";
-import { databaseBreaker, ExternalServiceError } from "./api-error-handler";
+import { databaseBreaker } from "./api-error-handler";
 import bcrypt from "bcryptjs";
 
 export const authOptions: NextAuthOptions = {
@@ -55,6 +54,13 @@ export const authOptions: NextAuthOptions = {
             return null;
           }
 
+          // Check if email is verified for password-based accounts
+          if (!user.emailVerified) {
+            // Instead of throwing an error, return null but set a custom error
+            // We'll handle this in the signIn callback
+            throw new Error("EmailNotVerified");
+          }
+
           return {
             id: user.id,
             email: user.email,
@@ -63,6 +69,10 @@ export const authOptions: NextAuthOptions = {
           };
         } catch (error) {
           console.error("Error during authentication:", error);
+          // Re-throw EmailNotVerified errors so they can be handled properly
+          if (error instanceof Error && error.message === "EmailNotVerified") {
+            throw error;
+          }
           return null;
         }
       }
@@ -74,31 +84,96 @@ export const authOptions: NextAuthOptions = {
     error: "/auth/error", // Use our custom error page
   },
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, account }) {
+      console.log("JWT callback - Input:", {
+        hasUser: !!user,
+        trigger,
+        tokenId: token.id,
+        tokenOnboarding: token.onboardingCompleted,
+        tokenEmailVerified: token.emailVerified,
+        accountProvider: account?.provider,
+      });
+
       // If user object is available (sign in), update token
       if (user) {
         token.id = user.id;
+        console.log("JWT callback - User sign in, setting token.id:", user.id);
+      }
+
+      // Always fetch fresh user data from database for session updates or when user signs in
+      if ((user || trigger === "update") && token.id) {
         try {
+          console.log("JWT callback - Fetching user data for ID:", token.id);
+
+          // For new OAuth users, we might need to wait a bit for the database events to complete
+          if (user && account && (account.provider === "google" || account.provider === "github")) {
+            console.log("JWT callback - New OAuth user detected, waiting for database setup");
+            // Small delay to ensure createUser and signIn events have completed
+            await new Promise(resolve => setTimeout(resolve, 100));
+          }
+
           const dbUser = await databaseBreaker.execute(async () => {
             return await prisma.user.findUnique({
-              where: { id: user.id },
-              select: { onboardingCompleted: true },
+              where: { id: token.id as string },
+              select: {
+                onboardingCompleted: true,
+                emailVerified: true
+              },
             });
           });
-          token.onboardingCompleted = dbUser?.onboardingCompleted ?? false;
+
+          console.log("JWT callback - Database user data:", dbUser);
+
+          if (dbUser) {
+            token.onboardingCompleted = dbUser.onboardingCompleted;
+            token.emailVerified = dbUser.emailVerified;
+            console.log("JWT callback - Updated token:", {
+              onboardingCompleted: token.onboardingCompleted,
+              emailVerified: token.emailVerified,
+            });
+          } else {
+            // Fallback for new users that might not be in DB yet
+            console.log("JWT callback - No database user found, using fallbacks");
+            token.onboardingCompleted = false;
+            token.emailVerified = null;
+          }
         } catch (error) {
           console.error("Error fetching user data in JWT callback:", error);
-          // Continue with default value instead of failing
-          token.onboardingCompleted = false;
+          // Continue with existing values instead of failing
+          if (!token.onboardingCompleted) {
+            token.onboardingCompleted = false;
+          }
         }
       }
+
+      console.log("JWT callback - Final token:", {
+        id: token.id,
+        onboardingCompleted: token.onboardingCompleted,
+        emailVerified: token.emailVerified,
+      });
+
       return token;
     },
     async session({ session, token }) {
+      console.log("Session callback - Input:", {
+        tokenId: token.id,
+        tokenOnboarding: token.onboardingCompleted,
+        tokenEmailVerified: token.emailVerified,
+        sessionUserEmail: session.user?.email,
+      });
+
       if (token) {
         session.user.id = token.id as string;
-        session.user.onboardingCompleted = token.onboardingCompleted;
+        session.user.onboardingCompleted = token.onboardingCompleted || false;
+        session.user.emailVerified = token.emailVerified || null;
+
+        console.log("Session callback - Updated session:", {
+          userId: session.user.id,
+          onboardingCompleted: session.user.onboardingCompleted,
+          emailVerified: session.user.emailVerified,
+        });
       }
+
       return session;
     },
     async signIn({ user, account, profile }) {
@@ -193,20 +268,53 @@ export const authOptions: NextAuthOptions = {
   },
   events: {
     async createUser({ user }) {
+      console.log("createUser event - New user created:", {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+      });
+
       try {
         // Set default values for new users
-        await prisma.user.update({
+        const updatedUser = await prisma.user.update({
           where: { id: user.id },
           data: {
             onboardingCompleted: false,
           },
+        });
+        console.log("createUser event - User updated with defaults:", {
+          id: updatedUser.id,
+          onboardingCompleted: updatedUser.onboardingCompleted,
         });
       } catch (error) {
         console.error("Error in createUser event:", error);
       }
     },
     async signIn({ user, account }) {
-      console.log(`User signed in: ${user.email} via ${account?.provider}`);
+      console.log(`signIn event - User signed in:`, {
+        email: user.email,
+        provider: account?.provider,
+        userId: user.id,
+      });
+
+      // For OAuth providers (Google, GitHub), automatically mark email as verified
+      if (account && (account.provider === "google" || account.provider === "github")) {
+        try {
+          console.log("signIn event - Updating OAuth user email verification");
+          const updatedUser = await prisma.user.update({
+            where: { email: user.email! },
+            data: {
+              emailVerified: new Date(),
+            },
+          });
+          console.log("signIn event - OAuth user email verified:", {
+            email: updatedUser.email,
+            emailVerified: updatedUser.emailVerified,
+          });
+        } catch (error) {
+          console.error("Error updating email verification for OAuth user:", error);
+        }
+      }
     },
     async signOut() {
       console.log('User signed out');

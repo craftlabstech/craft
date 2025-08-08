@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Github,
-  Mail,
   AlertCircle,
   CheckCircle,
   Loader2,
@@ -23,28 +22,39 @@ export default function SignInForm() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [emailSent, setEmailSent] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [emailError, setEmailError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
-  const [isEmailValid, setIsEmailValid] = useState(true);
   const router = useRouter();
   const searchParams = useSearchParams();
 
   // Handle auth errors from URL params
   useEffect(() => {
     const error = searchParams.get("error");
+    const message = searchParams.get("message");
     const callbackUrl = searchParams.get("callbackUrl");
 
     if (error) {
       setError(getErrorMessage(error));
     }
 
+    if (message === "EmailVerified") {
+      setError(null);
+      // Show success message temporarily
+      const timer = setTimeout(() => {
+        // Clear the URL parameter
+        const newUrl = new URL(window.location.href);
+        newUrl.searchParams.delete("message");
+        window.history.replaceState({}, "", newUrl.toString());
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+
     // Check if user is already signed in
     const checkSession = async () => {
       const session = await getSession();
       if (session) {
-        const redirectUrl = callbackUrl || "/dashboard";
+        const redirectUrl = callbackUrl || "/";
         router.push(redirectUrl);
       }
     };
@@ -70,6 +80,8 @@ export default function SignInForm() {
         return "Check your email for the sign in link.";
       case "CredentialsSignin":
         return "Sign in failed. Please check your credentials.";
+      case "EmailNotVerified":
+        return "Your email address needs to be verified before you can sign in. Please check your inbox for a verification link or request a new one.";
       case "SessionRequired":
         return "Please sign in to access this page.";
       case "Configuration":
@@ -90,10 +102,6 @@ export default function SignInForm() {
     return emailRegex.test(email);
   };
 
-  const validatePassword = (password: string): boolean => {
-    return password.length >= 8;
-  };
-
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newEmail = e.target.value;
     setEmail(newEmail);
@@ -102,9 +110,6 @@ export default function SignInForm() {
 
     if (newEmail && !validateEmail(newEmail)) {
       setEmailError("Please enter a valid email address");
-      setIsEmailValid(false);
-    } else {
-      setIsEmailValid(true);
     }
   };
 
@@ -145,7 +150,7 @@ export default function SignInForm() {
     setPasswordError(null);
 
     try {
-      const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+      const callbackUrl = searchParams.get("callbackUrl") || "/";
       const result = await signIn("credentials", {
         email: email.toLowerCase().trim(),
         password,
@@ -154,7 +159,46 @@ export default function SignInForm() {
       });
 
       if (result?.error) {
-        setError("Invalid email or password. Please try again.");
+        if (result.error === "EmailNotVerified") {
+          // Try to send verification email automatically
+          try {
+            const verificationResponse = await fetch(
+              "/api/auth/trigger-verification",
+              {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                  email: email.toLowerCase().trim(),
+                  password,
+                }),
+              }
+            );
+
+            if (verificationResponse.ok) {
+              // Redirect to verification page with success message
+              router.push(
+                `/auth/verify-request?email=${encodeURIComponent(email)}&triggered=true`
+              );
+              return;
+            } else {
+              // If automatic verification fails, still redirect but show error
+              router.push(
+                `/auth/verify-request?email=${encodeURIComponent(email)}&error=EmailSendFailed`
+              );
+              return;
+            }
+          } catch (verificationError) {
+            console.error("Error triggering verification:", verificationError);
+            // Fallback: redirect to verification page
+            router.push(
+              `/auth/verify-request?email=${encodeURIComponent(email)}&error=EmailSendFailed`
+            );
+            return;
+          }
+        }
+        setError(getErrorMessage(result.error));
       } else if (result?.ok) {
         router.push(callbackUrl);
       }
@@ -171,7 +215,7 @@ export default function SignInForm() {
     setError(null);
 
     try {
-      const callbackUrl = searchParams.get("callbackUrl") || "/dashboard";
+      const callbackUrl = searchParams.get("callbackUrl") || "/";
       const result = await signIn(providerId, {
         callbackUrl,
         redirect: false,
@@ -189,32 +233,21 @@ export default function SignInForm() {
     }
   };
 
-  const handleResendEmail = () => {
-    setEmailSent(false);
-    setStep(1);
-  };
-
   // Remove the email sent screen - we're using password auth now
   if (step === 2) {
     return (
       <div className="min-h-screen bg-background">
         {/* Simple Header */}
         <header className="fixed top-0 z-50 w-full bg-background/80 backdrop-blur-xl">
-          <div className="flex h-14 items-center justify-between px-4">
+          <div className="flex h-14 items-center justify-start px-4">
             <Link href="/" className="flex items-center gap-2">
-              <span className="text-2xl font-mono tracking-tighter font-semibold text-foreground">
-                CraftJS
+              <span className="text-2xl font-roboto tracking-tight font-semibold text-foreground">
+                Craft
               </span>
               <span className="px-2 py-0.5 rounded-full border border-border text-xs font-light text-muted-foreground uppercase tracking-wider">
                 Beta
               </span>
             </Link>
-
-            <div className="flex items-center gap-3">
-              <button className="p-2 rounded-full hover:bg-muted transition-colors">
-                <Settings className="h-5 w-5 text-muted-foreground" />
-              </button>
-            </div>
           </div>
         </header>
 
@@ -228,6 +261,18 @@ export default function SignInForm() {
               </h1>
               <p className="text-muted-foreground text-lg">For {email}</p>
             </div>
+
+            {/* Success Alert */}
+            {searchParams.get("message") === "EmailVerified" && (
+              <div className="mb-6 p-4 rounded-2xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-800 dark:text-green-200">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 flex-shrink-0" />
+                  <span className="text-sm">
+                    Email verified successfully! You can now sign in.
+                  </span>
+                </div>
+              </div>
+            )}
 
             {/* Error Alert */}
             {error && (
@@ -318,21 +363,15 @@ export default function SignInForm() {
     <div className="min-h-screen bg-background">
       {/* Simple Header */}
       <header className="fixed top-0 z-50 w-full bg-background/80 backdrop-blur-xl">
-        <div className="flex h-14 items-center justify-between px-4">
+        <div className="flex h-14 items-center justify-start px-4">
           <Link href="/" className="flex items-center gap-2">
-            <span className="text-2xl font-mono tracking-tighter font-semibold text-foreground">
-              CraftJS
+            <span className="text-lg sm:text-2xl font-roboto tracking-tight font-semibold text-foreground">
+              Craft
             </span>
             <span className="px-2 py-0.5 rounded-full border border-border text-xs font-light text-muted-foreground uppercase tracking-wider">
               Beta
             </span>
           </Link>
-
-          <div className="flex items-center gap-3">
-            <button className="p-2 rounded-full hover:bg-muted transition-colors">
-              <Settings className="h-5 w-5 text-muted-foreground" />
-            </button>
-          </div>
         </div>
       </header>
 
@@ -345,6 +384,18 @@ export default function SignInForm() {
               Welcome back
             </h1>
           </div>
+
+          {/* Success Alert */}
+          {searchParams.get("message") === "EmailVerified" && (
+            <div className="mb-6 p-4 rounded-2xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-800 dark:text-green-200">
+              <div className="flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 flex-shrink-0" />
+                <span className="text-sm">
+                  Email verified successfully! You can now sign in.
+                </span>
+              </div>
+            </div>
+          )}
 
           {/* Error Alert */}
           {error && (

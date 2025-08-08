@@ -6,11 +6,9 @@ import { signIn, getSession } from "next-auth/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import SignupProfilePictureUpload from "@/components/signup-profile-picture-upload";
 import {
   Github,
-  Mail,
-  User,
-  Camera,
   AlertCircle,
   CheckCircle,
   Loader2,
@@ -19,21 +17,38 @@ import {
   Settings,
 } from "lucide-react";
 
+// For generating random IDs
+declare global {
+  interface Window {
+    crypto: Crypto;
+  }
+}
+
 export default function SignUpForm() {
-  const [step, setStep] = useState(1); // 1: email, 2: password, 3: profile details
+  const [step, setStep] = useState(1); // 1: email, 2: password & confirm, 3: name
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [name, setName] = useState("");
-  const [profileImage, setProfileImage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [accountCreated, setAccountCreated] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [emailError, setEmailError] = useState<string | null>(null);
   const [passwordError, setPasswordError] = useState<string | null>(null);
+  const [confirmPasswordError, setConfirmPasswordError] = useState<
+    string | null
+  >(null);
   const [nameError, setNameError] = useState<string | null>(null);
   const [isEmailValid, setIsEmailValid] = useState(true);
-  const [imageUploadError, setImageUploadError] = useState<string | null>(null);
+  const [profilePictureFile, setProfilePictureFile] = useState<File | null>(
+    null
+  );
+  const [profilePictureUrl, setProfilePictureUrl] = useState<string | null>(
+    null
+  );
+  const [isUploadingPicture, setIsUploadingPicture] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -99,35 +114,39 @@ export default function SignUpForm() {
     return name.trim().length >= 2 && name.trim().length <= 50;
   };
 
-  const validateImageFile = (file: File): boolean => {
-    const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
-    const maxSize = 5 * 1024 * 1024; // 5MB
-
-    if (!allowedTypes.includes(file.type)) {
-      setImageUploadError(
-        "Please upload a valid image file (JPEG, PNG, GIF, or WebP)"
-      );
-      return false;
-    }
-
-    if (file.size > maxSize) {
-      setImageUploadError("Image size must be less than 5MB");
-      return false;
-    }
-
-    return true;
-  };
-
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setPassword(value);
     setPasswordError(null);
+    setConfirmPasswordError(null);
     setError(null);
 
     if (value && !validatePassword(value)) {
       setPasswordError("Password must be at least 8 characters long");
     } else {
       setPasswordError(null);
+    }
+
+    // Re-validate confirm password if it's already entered
+    if (confirmPassword && value !== confirmPassword) {
+      setConfirmPasswordError("Passwords do not match");
+    } else if (confirmPassword && value === confirmPassword) {
+      setConfirmPasswordError(null);
+    }
+  };
+
+  const handleConfirmPasswordChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const value = e.target.value;
+    setConfirmPassword(value);
+    setConfirmPasswordError(null);
+    setError(null);
+
+    if (value && value !== password) {
+      setConfirmPasswordError("Passwords do not match");
+    } else {
+      setConfirmPasswordError(null);
     }
   };
 
@@ -159,6 +178,47 @@ export default function SignUpForm() {
     }
   };
 
+  const handleProfilePictureChange = (
+    file: File | null,
+    previewUrl: string | null
+  ) => {
+    setProfilePictureFile(file);
+    setProfilePictureUrl(previewUrl);
+    setError(null);
+  };
+
+  const uploadProfilePicture = async (): Promise<string | null> => {
+    if (!profilePictureFile) return null;
+
+    setIsUploadingPicture(true);
+    try {
+      // Generate a temporary user ID for the upload
+      const tempUserId = window.crypto.randomUUID();
+
+      const formData = new FormData();
+      formData.append("file", profilePictureFile);
+      formData.append("tempUserId", tempUserId);
+
+      const response = await fetch("/api/auth/signup-profile-picture", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to upload profile picture");
+      }
+
+      return data.imageUrl;
+    } catch (error) {
+      console.error("Error uploading profile picture:", error);
+      throw error;
+    } finally {
+      setIsUploadingPicture(false);
+    }
+  };
+
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -170,9 +230,30 @@ export default function SignUpForm() {
     }
 
     if (step === 2) {
-      // Validate password and create account
+      // Validate password and confirm password, then move to step 3
       if (!password || !validatePassword(password)) {
         setPasswordError("Password must be at least 8 characters long");
+        return;
+      }
+
+      if (!confirmPassword) {
+        setConfirmPasswordError("Please confirm your password");
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        setConfirmPasswordError("Passwords do not match");
+        return;
+      }
+
+      setStep(3);
+      return;
+    }
+
+    if (step === 3) {
+      // Validate name and create account
+      if (!name || !validateName(name)) {
+        setNameError("Name must be between 2 and 50 characters");
         return;
       }
 
@@ -180,6 +261,17 @@ export default function SignUpForm() {
       setError(null);
 
       try {
+        // Upload profile picture first if one is selected
+        let uploadedImageUrl = null;
+        if (profilePictureFile) {
+          try {
+            uploadedImageUrl = await uploadProfilePicture();
+          } catch (uploadError) {
+            setError("Failed to upload profile picture. Please try again.");
+            return;
+          }
+        }
+
         // Create account via API
         const response = await fetch("/api/auth/signup", {
           method: "POST",
@@ -189,7 +281,8 @@ export default function SignUpForm() {
           body: JSON.stringify({
             email: email.toLowerCase().trim(),
             password,
-            name: name.trim() || null,
+            name: name.trim(),
+            profilePictureUrl: uploadedImageUrl,
           }),
         });
 
@@ -200,23 +293,8 @@ export default function SignUpForm() {
           return;
         }
 
-        // Account created successfully, now sign in
-        const result = await signIn("credentials", {
-          email: email.toLowerCase().trim(),
-          password,
-          redirect: false,
-          callbackUrl: searchParams.get("callbackUrl") || "/onboarding",
-        });
-
-        if (result?.error) {
-          setError(
-            "Account created but failed to sign in. Please try signing in manually."
-          );
-        } else if (result?.ok) {
-          setAccountCreated(true);
-          // Redirect will be handled by NextAuth
-          router.push(searchParams.get("callbackUrl") || "/onboarding");
-        }
+        // Account created successfully, redirect to email verification
+        router.push(`/auth/verify-request?email=${encodeURIComponent(email)}`);
       } catch (error) {
         console.error("Error creating account:", error);
         setError("Network error. Please check your connection and try again.");
@@ -232,7 +310,7 @@ export default function SignUpForm() {
 
     try {
       const result = await signIn(providerId, {
-        callbackUrl: searchParams.get("callbackUrl") || "/onboarding",
+        callbackUrl: searchParams.get("callbackUrl") || "/",
         redirect: false,
       });
 
@@ -248,26 +326,6 @@ export default function SignUpForm() {
     }
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    setImageUploadError(null);
-
-    if (file) {
-      if (!validateImageFile(file)) {
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setProfileImage(e.target?.result as string);
-      };
-      reader.onerror = () => {
-        setImageUploadError("Failed to read the image file. Please try again.");
-      };
-      reader.readAsDataURL(file);
-    }
-  };
-
   const proceedToPasswordStep = () => {
     if (email && isEmailValid) {
       setStep(2);
@@ -278,13 +336,15 @@ export default function SignUpForm() {
     setAccountCreated(false);
     setEmail("");
     setPassword("");
+    setConfirmPassword("");
     setName("");
-    setProfileImage(null);
+    setProfilePictureFile(null);
+    setProfilePictureUrl(null);
     setError(null);
     setEmailError(null);
     setPasswordError(null);
+    setConfirmPasswordError(null);
     setNameError(null);
-    setImageUploadError(null);
     setStep(1);
   };
 
@@ -293,28 +353,15 @@ export default function SignUpForm() {
       <div className="min-h-screen bg-background">
         {/* Simple Header */}
         <header className="fixed top-0 z-50 w-full bg-background/80 backdrop-blur-xl">
-          <div className="flex h-14 items-center justify-between px-4">
+          <div className="flex h-14 items-center justify-start px-4">
             <Link href="/" className="flex items-center gap-2">
-              <span className="text-2xl font-mono tracking-tighter font-semibold text-foreground">
-                CraftJS
+              <span className="text-lg sm:text-2xl font-roboto tracking-tight font-semibold text-foreground">
+                Craft
               </span>
               <span className="px-2 py-0.5 rounded-full border border-border text-xs font-light text-muted-foreground uppercase tracking-wider">
                 Beta
               </span>
             </Link>
-
-            <div className="flex items-center gap-3">
-              <Link href="/auth/signin">
-                <button className="text-xs text-center sm:text-sm rounded-full border border-border text-foreground hover:bg-muted hover:text-foreground hover:border-border px-3 sm:px-4 py-1.5 sm:py-2 font-medium transition-all duration-200 focus:outline-none cursor-pointer">
-                  <span>Sign in</span>
-                </button>
-              </Link>
-              <Link href="mailto:support@craftjs.dev">
-                <button className="text-xs text-center sm:text-sm rounded-full bg-primary text-primary-foreground border border-primary hover:bg-primary/90 hover:border-primary/80 px-3 sm:px-4 py-1.5 sm:py-2 font-medium transition-all duration-200 focus:outline-none cursor-pointer">
-                  <span>Contact</span>
-                </button>
-              </Link>
-            </div>
           </div>
         </header>
 
@@ -329,7 +376,7 @@ export default function SignUpForm() {
                 Account created!
               </h1>
               <p className="text-muted-foreground text-lg mb-2">
-                Welcome to CraftJS
+                Welcome to Craft
               </p>
               <p className="text-foreground font-medium text-lg">{email}</p>
             </div>
@@ -343,10 +390,10 @@ export default function SignUpForm() {
 
             <div className="space-y-3">
               <Button
-                onClick={() => router.push("/onboarding")}
+                onClick={() => router.push("/")}
                 className="w-full h-12 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-medium text-base"
               >
-                Continue to Onboarding
+                Continue to Home
               </Button>
               <Button
                 variant="ghost"
@@ -367,21 +414,15 @@ export default function SignUpForm() {
       <div className="min-h-screen bg-background">
         {/* Simple Header */}
         <header className="fixed top-0 z-50 w-full bg-background/80 backdrop-blur-xl">
-          <div className="flex h-14 items-center justify-between px-4">
+          <div className="flex h-14 items-center justify-start px-4">
             <Link href="/" className="flex items-center gap-2">
-              <span className="text-2xl font-mono tracking-tighter font-semibold text-foreground">
-                CraftJS
+              <span className="text-lg sm:text-2xl font-roboto tracking-tight font-semibold text-foreground">
+                Craft
               </span>
               <span className="px-2 py-0.5 rounded-full border border-border text-xs font-light text-muted-foreground uppercase tracking-wider">
                 Beta
               </span>
             </Link>
-
-            <div className="flex items-center gap-3">
-              <button className="p-2 rounded-full hover:bg-muted transition-colors">
-                <Settings className="h-5 w-5 text-muted-foreground" />
-              </button>
-            </div>
           </div>
         </header>
 
@@ -441,20 +482,38 @@ export default function SignUpForm() {
                 </p>
               </div>
 
-              {/* Name Input (Optional) */}
+              {/* Confirm Password Input */}
               <div className="space-y-2">
-                <Input
-                  type="text"
-                  placeholder="Full name (optional)"
-                  value={name}
-                  onChange={handleNameChange}
-                  disabled={isLoading}
-                  className={`h-14 px-6 rounded-full bg-card/80 backdrop-blur-sm border-border/50 focus:border-border transition-colors text-base ${
-                    nameError ? "border-red-500 focus:border-red-500" : ""
-                  }`}
-                />
-                {nameError && (
-                  <p className="text-sm text-red-500 px-1">{nameError}</p>
+                <div className="relative">
+                  <Input
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="Confirm password"
+                    value={confirmPassword}
+                    onChange={handleConfirmPasswordChange}
+                    required
+                    disabled={isLoading}
+                    className={`h-14 px-6 pr-12 rounded-full bg-card/80 backdrop-blur-sm border-border/50 outline-none focus:border-border transition-colors text-base ${
+                      confirmPasswordError
+                        ? "border-red-500 focus:border-red-500"
+                        : ""
+                    }`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-5 w-5" />
+                    ) : (
+                      <Eye className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
+                {confirmPasswordError && (
+                  <p className="text-sm text-red-500 px-1">
+                    {confirmPasswordError}
+                  </p>
                 )}
               </div>
 
@@ -462,17 +521,21 @@ export default function SignUpForm() {
                 <Button
                   type="submit"
                   disabled={
-                    isLoading || !password || !validatePassword(password)
+                    isLoading ||
+                    !password ||
+                    !confirmPassword ||
+                    !validatePassword(password) ||
+                    password !== confirmPassword
                   }
                   className="w-full h-14 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-medium text-base"
                 >
                   {isLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Creating account...
+                      Loading...
                     </>
                   ) : (
-                    "Create account"
+                    "Continue"
                   )}
                 </Button>
 
@@ -493,25 +556,126 @@ export default function SignUpForm() {
     );
   }
 
+  if (step === 3) {
+    return (
+      <div className="min-h-screen bg-background">
+        {/* Simple Header */}
+        <header className="fixed top-0 z-50 w-full bg-background/80 backdrop-blur-xl">
+          <div className="flex h-14 items-center justify-start px-4">
+            <Link href="/" className="flex items-center gap-2">
+              <span className="text-lg sm:text-2xl font-roboto tracking-tight font-semibold text-foreground">
+                Craft
+              </span>
+              <span className="px-2 py-0.5 rounded-full border border-border text-xs font-light text-muted-foreground uppercase tracking-wider">
+                Beta
+              </span>
+            </Link>
+          </div>
+        </header>
+
+        {/* Main Content */}
+        <div className="pt-14 min-h-screen flex items-center justify-center px-4">
+          <div className="w-full max-w-sm mx-auto">
+            {/* Header */}
+            <div className="text-center mb-8">
+              <h1 className="text-3xl font-medium text-foreground mb-3">
+                Tell us about yourself
+              </h1>
+              <p className="text-muted-foreground text-lg">
+                Help us personalize your experience
+              </p>
+            </div>
+
+            {/* Error Alert */}
+            {error && (
+              <div className="mb-6 p-4 rounded-2xl bg-destructive/10 border border-destructive/20 text-destructive">
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="h-4 w-4 flex-shrink-0" />
+                  <span className="text-sm">{error}</span>
+                </div>
+              </div>
+            )}
+
+            <form onSubmit={handleSignUp} className="space-y-6">
+              {/* Profile Picture Upload */}
+              <div className="flex flex-col items-center mb-6">
+                <SignupProfilePictureUpload
+                  onImageChange={handleProfilePictureChange}
+                  className="mb-4"
+                />
+              </div>
+
+              {/* Name Input */}
+              <div className="space-y-2">
+                <Input
+                  type="text"
+                  placeholder="Full name"
+                  value={name}
+                  onChange={handleNameChange}
+                  required
+                  disabled={isLoading || isUploadingPicture}
+                  className={`h-14 px-6 rounded-full bg-card/80 backdrop-blur-sm border-border/50 focus:border-border transition-colors text-base ${
+                    nameError ? "border-red-500 focus:border-red-500" : ""
+                  }`}
+                />
+                {nameError && (
+                  <p className="text-sm text-red-500 px-1">{nameError}</p>
+                )}
+              </div>
+
+              <div className="space-y-4 pt-2">
+                <Button
+                  type="submit"
+                  disabled={
+                    isLoading ||
+                    isUploadingPicture ||
+                    !name ||
+                    !validateName(name)
+                  }
+                  className="w-full h-14 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors font-medium text-base"
+                >
+                  {isLoading || isUploadingPicture ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      {isUploadingPicture
+                        ? "Uploading image..."
+                        : "Creating account..."}
+                    </>
+                  ) : (
+                    "Create account"
+                  )}
+                </Button>
+
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setStep(2)}
+                  className="w-full h-14 rounded-full bg-card/80 backdrop-blur-sm border-border/50 hover:border-border transition-colors font-medium text-base"
+                  disabled={isLoading || isUploadingPicture}
+                >
+                  Back
+                </Button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* Simple Header */}
       <header className="fixed top-0 z-50 w-full bg-background/80 backdrop-blur-xl">
-        <div className="flex h-14 items-center justify-between px-4">
+        <div className="flex h-14 items-center justify-start px-4">
           <Link href="/" className="flex items-center gap-2">
-            <span className="text-2xl font-mono tracking-tighter font-semibold text-foreground">
-              CraftJS
+            <span className="text-lg sm:text-2xl font-roboto tracking-tight font-semibold text-foreground">
+              Craft
             </span>
             <span className="px-2 py-0.5 rounded-full border border-border text-xs font-light text-muted-foreground uppercase tracking-wider">
               Beta
             </span>
           </Link>
-
-          <div className="flex items-center gap-3">
-            <button className="p-2 rounded-full hover:bg-muted transition-colors">
-              <Settings className="h-5 w-5 text-muted-foreground" />
-            </button>
-          </div>
         </div>
       </header>
 
