@@ -83,8 +83,8 @@ export default function ForgotPasswordForm() {
         <header className="fixed top-0 z-50 w-full bg-background/80 backdrop-blur-xl">
           <div className="flex h-14 items-center justify-between px-4">
             <Link href="/" className="flex items-center gap-2">
-              <span className="text-2xl font-mono tracking-tighter font-semibold text-foreground">
-                CraftJS
+              <span className="text-2xl font-roboto tracking-tight font-semibold text-foreground">
+                Craft
               </span>
               <span className="px-2 py-0.5 rounded-full border border-border text-xs font-light text-muted-foreground uppercase tracking-wider">
                 Beta

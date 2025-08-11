@@ -101,6 +101,7 @@ export const authOptions: NextAuthOptions = {
       }
 
       // Always fetch fresh user data from database for session updates or when user signs in
+      // Also check for OAuth users who might need email verification updated
       if ((user || trigger === "update") && token.id) {
         try {
           console.log("JWT callback - Fetching user data for ID:", token.id);
@@ -143,6 +144,51 @@ export const authOptions: NextAuthOptions = {
           if (!token.onboardingCompleted) {
             token.onboardingCompleted = false;
           }
+        }
+      }
+
+      // Special handling for OAuth users without emailVerified - check and update if needed
+      if (token.id && !token.emailVerified && !user) {
+        try {
+          console.log("JWT callback - Checking if user is OAuth user without email verification");
+          const userWithAccounts = await databaseBreaker.execute(async () => {
+            return await prisma.user.findUnique({
+              where: { id: token.id as string },
+              select: {
+                emailVerified: true,
+                accounts: {
+                  select: {
+                    provider: true
+                  }
+                }
+              },
+            });
+          });
+
+          // If user has OAuth accounts but no emailVerified, update it
+          if (userWithAccounts && !userWithAccounts.emailVerified) {
+            const hasOAuthAccount = userWithAccounts.accounts.some(
+              acc => acc.provider === "google" || acc.provider === "github"
+            );
+
+            if (hasOAuthAccount) {
+              console.log("JWT callback - Found OAuth user without email verification, updating...");
+              const updatedUser = await databaseBreaker.execute(async () => {
+                return await prisma.user.update({
+                  where: { id: token.id as string },
+                  data: { emailVerified: new Date() },
+                  select: { emailVerified: true }
+                });
+              });
+              token.emailVerified = updatedUser.emailVerified;
+              console.log("JWT callback - Updated OAuth user email verification:", token.emailVerified);
+            }
+          } else if (userWithAccounts?.emailVerified) {
+            // Update token with the verified email
+            token.emailVerified = userWithAccounts.emailVerified;
+          }
+        } catch (error) {
+          console.error("Error checking OAuth user email verification:", error);
         }
       }
 
