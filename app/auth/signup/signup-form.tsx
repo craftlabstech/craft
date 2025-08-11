@@ -14,7 +14,6 @@ import {
   Loader2,
   Eye,
   EyeOff,
-  Settings,
 } from "lucide-react";
 
 // For generating random IDs
@@ -45,9 +44,7 @@ export default function SignUpForm() {
   const [profilePictureFile, setProfilePictureFile] = useState<File | null>(
     null
   );
-  const [profilePictureUrl, setProfilePictureUrl] = useState<string | null>(
-    null
-  );
+  // Note: profilePictureUrl state removed as it was unused - preview is handled by the upload component
   const [isUploadingPicture, setIsUploadingPicture] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -180,10 +177,11 @@ export default function SignUpForm() {
 
   const handleProfilePictureChange = (
     file: File | null,
-    previewUrl: string | null
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    previewUrl: string | null // handled by the upload component internally
   ) => {
     setProfilePictureFile(file);
-    setProfilePictureUrl(previewUrl);
+    // Note: previewUrl is handled by the upload component internally
     setError(null);
   };
 
@@ -266,7 +264,7 @@ export default function SignUpForm() {
         if (profilePictureFile) {
           try {
             uploadedImageUrl = await uploadProfilePicture();
-          } catch (uploadError) {
+          } catch {
             setError("Failed to upload profile picture. Please try again.");
             return;
           }
@@ -339,7 +337,7 @@ export default function SignUpForm() {
     setConfirmPassword("");
     setName("");
     setProfilePictureFile(null);
-    setProfilePictureUrl(null);
+    // Note: profilePictureUrl state removed as it was unused
     setError(null);
     setEmailError(null);
     setPasswordError(null);

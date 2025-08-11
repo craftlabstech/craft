@@ -7,7 +7,12 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 export default function DebugPage() {
   const { data: session, status } = useSession();
-  const [debugData, setDebugData] = useState<any>(null);
+  const [debugData, setDebugData] = useState<{
+    user?: Record<string, unknown>;
+    session?: Record<string, unknown>;
+    accounts?: Record<string, unknown>[];
+    sessions?: Record<string, unknown>[];
+  } | null>(null);
   const [loading, setLoading] = useState(false);
 
   const checkUserStatus = async () => {

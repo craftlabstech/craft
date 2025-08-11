@@ -25,7 +25,7 @@ export async function POST(request: NextRequest) {
         // Find and validate reset token
         const resetToken = await databaseBreaker.execute(async () => {
             // Note: This will work once Prisma client is regenerated
-            return await (prisma as any).passwordResetToken.findUnique({
+            return await prisma.passwordResetToken.findUnique({
                 where: { token },
                 include: { user: true },
             });
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
         // Check if token has expired
         if (new Date() > resetToken.expires) {
             // Delete expired token
-            await (prisma as any).passwordResetToken.delete({
+            await prisma.passwordResetToken.delete({
                 where: { token },
             });
 
@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
         // Update user password and mark token as used
         await databaseBreaker.execute(async () => {
             // Update user password
-            await (prisma as any).user.update({
+            await prisma.user.update({
                 where: { id: resetToken.userId },
                 data: {
                     password: hashedPassword,
@@ -75,7 +75,7 @@ export async function POST(request: NextRequest) {
             });
 
             // Mark token as used
-            await (prisma as any).passwordResetToken.update({
+            await prisma.passwordResetToken.update({
                 where: { token },
                 data: { used: true },
             });

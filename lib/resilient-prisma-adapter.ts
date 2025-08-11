@@ -6,12 +6,16 @@ import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
 /**
  * Wraps the PrismaAdapter to handle database errors gracefully
  * Specifically handles cases where database tables don't exist yet
+ * 
+ * Note: This file uses 'any' types that are required by NextAuth's adapter interface
+ * eslint-disable-next-line @typescript-eslint/no-explicit-any
  */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 export function createResilientPrismaAdapter(prisma: PrismaClient): Adapter {
     const baseAdapter = PrismaAdapter(prisma);
 
     // Helper function to handle database errors
-    const handleDatabaseError = (error: any, operation: string) => {
+    const handleDatabaseError = (error: unknown, operation: string) => {
         console.error(`Database error in ${operation}:`, error);
 
         if (error instanceof PrismaClientKnownRequestError) {

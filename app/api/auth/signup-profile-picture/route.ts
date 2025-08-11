@@ -41,14 +41,14 @@ export async function POST(request: NextRequest) {
             imageUrl: uploadResult.url,
             key: uploadResult.key,
         });
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error("Error uploading profile picture during signup:", error);
 
-        if (error.message?.includes("File size")) {
+        if (error instanceof Error && error.message?.includes("File size")) {
             return NextResponse.json({ error: "File size must be less than 5MB" }, { status: 400 });
         }
 
-        if (error.message?.includes("File type")) {
+        if (error instanceof Error && error.message?.includes("File type")) {
             return NextResponse.json({ error: "File must be JPEG, PNG, or WebP format" }, { status: 400 });
         }
 

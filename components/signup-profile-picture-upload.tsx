@@ -16,7 +16,7 @@ export default function SignupProfilePictureUpload({
   onImageChange,
   initialImage = null,
 }: SignupProfilePictureUploadProps) {
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  // Note: selectedFile state removed as it's only passed to parent via onImageChange
   const [previewUrl, setPreviewUrl] = useState<string | null>(initialImage);
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [imageError, setImageError] = useState(false);
@@ -60,7 +60,7 @@ export default function SignupProfilePictureUpload({
     try {
       // Create preview URL
       const url = URL.createObjectURL(file);
-      setSelectedFile(file);
+      // Note: selectedFile state removed as it's only passed to parent
       setPreviewUrl(url);
       setImageError(false);
 
@@ -78,7 +78,7 @@ export default function SignupProfilePictureUpload({
       URL.revokeObjectURL(previewUrl);
     }
 
-    setSelectedFile(null);
+    // Note: selectedFile state removed as it's only passed to parent
     setPreviewUrl(null);
     setUploadError(null);
     setImageError(false);

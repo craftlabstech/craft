@@ -39,7 +39,7 @@ export const authOptions: NextAuthOptions = {
 
         try {
           const user = await databaseBreaker.execute(async () => {
-            return await (prisma as any).user.findUnique({
+            return await prisma.user.findUnique({
               where: { email: credentials.email.toLowerCase() },
             });
           });

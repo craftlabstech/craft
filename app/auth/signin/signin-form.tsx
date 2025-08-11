@@ -13,7 +13,6 @@ import {
   Loader2,
   Eye,
   EyeOff,
-  Settings,
 } from "lucide-react";
 
 export default function SignInForm() {

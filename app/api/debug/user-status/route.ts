@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 // Debug endpoint to check user status
-export async function GET(request: NextRequest) {
+export async function GET() {
     try {
         const session = await getServerSession(authOptions);
 
@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
 }
 
 // Reset user profile fields for testing
-export async function POST(request: NextRequest) {
+export async function POST() {
     try {
         const session = await getServerSession(authOptions);
 

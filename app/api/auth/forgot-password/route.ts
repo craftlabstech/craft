@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
 
         // Save reset token to database
         await databaseBreaker.execute(async () => {
-            return await (prisma as any).passwordResetToken.create({
+            return await prisma.passwordResetToken.create({
                 data: {
                     token: resetToken,
                     userId: user.id,
@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
 
             // Clean up the token if email fails
             try {
-                await (prisma as any).passwordResetToken.delete({
+                await prisma.passwordResetToken.delete({
                     where: { token: resetToken },
                 });
             } catch (cleanupError) {

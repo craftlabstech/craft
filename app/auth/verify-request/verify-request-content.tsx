@@ -182,7 +182,7 @@ export default function VerifyRequestContent() {
                   {searchParams.get("triggered") === "true" ? (
                     <>
                       Your email address needs to be verified before you can
-                      sign in. We've sent a verification link to{" "}
+                      sign in. We&apos;ve sent a verification link to{" "}
                       <span className="font-medium text-foreground">
                         {email}
                       </span>
