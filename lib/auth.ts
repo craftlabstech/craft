@@ -89,7 +89,6 @@ export const authOptions: NextAuthOptions = {
         hasUser: !!user,
         trigger,
         tokenId: token.id,
-        tokenOnboarding: token.onboardingCompleted,
         tokenEmailVerified: token.emailVerified,
         accountProvider: account?.provider,
       });
@@ -117,7 +116,6 @@ export const authOptions: NextAuthOptions = {
             return await prisma.user.findUnique({
               where: { id: token.id as string },
               select: {
-                onboardingCompleted: true,
                 emailVerified: true
               },
             });
@@ -126,24 +124,18 @@ export const authOptions: NextAuthOptions = {
           console.log("JWT callback - Database user data:", dbUser);
 
           if (dbUser) {
-            token.onboardingCompleted = dbUser.onboardingCompleted;
             token.emailVerified = dbUser.emailVerified;
             console.log("JWT callback - Updated token:", {
-              onboardingCompleted: token.onboardingCompleted,
               emailVerified: token.emailVerified,
             });
           } else {
             // Fallback for new users that might not be in DB yet
             console.log("JWT callback - No database user found, using fallbacks");
-            token.onboardingCompleted = false;
             token.emailVerified = null;
           }
         } catch (error) {
           console.error("Error fetching user data in JWT callback:", error);
           // Continue with existing values instead of failing
-          if (!token.onboardingCompleted) {
-            token.onboardingCompleted = false;
-          }
         }
       }
 
@@ -194,7 +186,6 @@ export const authOptions: NextAuthOptions = {
 
       console.log("JWT callback - Final token:", {
         id: token.id,
-        onboardingCompleted: token.onboardingCompleted,
         emailVerified: token.emailVerified,
       });
 
@@ -203,19 +194,16 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       console.log("Session callback - Input:", {
         tokenId: token.id,
-        tokenOnboarding: token.onboardingCompleted,
         tokenEmailVerified: token.emailVerified,
         sessionUserEmail: session.user?.email,
       });
 
       if (token) {
         session.user.id = token.id as string;
-        session.user.onboardingCompleted = token.onboardingCompleted || false;
         session.user.emailVerified = token.emailVerified || null;
 
         console.log("Session callback - Updated session:", {
           userId: session.user.id,
-          onboardingCompleted: session.user.onboardingCompleted,
           emailVerified: session.user.emailVerified,
         });
       }
@@ -320,21 +308,7 @@ export const authOptions: NextAuthOptions = {
         name: user.name,
       });
 
-      try {
-        // Set default values for new users
-        const updatedUser = await prisma.user.update({
-          where: { id: user.id },
-          data: {
-            onboardingCompleted: false,
-          },
-        });
-        console.log("createUser event - User updated with defaults:", {
-          id: updatedUser.id,
-          onboardingCompleted: updatedUser.onboardingCompleted,
-        });
-      } catch (error) {
-        console.error("Error in createUser event:", error);
-      }
+      console.log("createUser event - User created successfully");
     },
     async signIn({ user, account }) {
       console.log(`signIn event - User signed in:`, {

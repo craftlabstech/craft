@@ -39,18 +39,17 @@ model Session {
 }
 
 model User {
-  id                  String    @id @default(cuid())
-  name                String?
-  email               String    @unique
-  emailVerified       DateTime?
-  password            String? // For email/password authentication
-  image               String?
-  bio                 String?
-  occupation          String?
-  company             String?
-  onboardingCompleted Boolean   @default(false)
-  createdAt           DateTime  @default(now())
-  updatedAt           DateTime  @updatedAt
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  password      String? // For email/password authentication
+  image         String?
+  bio           String?
+  occupation    String?
+  company       String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   accounts            Account[]
   sessions            Session[]

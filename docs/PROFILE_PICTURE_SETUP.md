@@ -10,7 +10,6 @@ This implementation provides profile picture upload functionality for users who 
 - ✅ File validation (type, size)
 - ✅ Automatic cleanup of old profile pictures
 - ✅ Responsive UI component
-- ✅ Integration with onboarding flow
 
 ## Setup Instructions
 
@@ -106,13 +105,6 @@ AWS_CLOUDFRONT_URL=https://your-cloudfront-domain.cloudfront.net
 
 ## Usage
 
-### In Onboarding Flow
-
-The profile picture upload is automatically included in the onboarding process:
-
-- Email users see the profile picture upload step
-- OAuth users (Google/GitHub) automatically skip this step
-
 ### In Settings Page
 
 Users can manage their profile pictures at `/settings`:
@@ -167,8 +159,6 @@ app/
     route.ts                      # API endpoints
   settings/
     page.tsx                      # Settings page
-  onboarding/
-    page.tsx                      # Updated onboarding
 ```
 
 ## Security Considerations

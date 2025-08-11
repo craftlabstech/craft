@@ -9,7 +9,6 @@ export interface AuthState {
     isAuthenticated: boolean;
     user: unknown;
     error: string | null;
-    isOnboardingCompleted: boolean;
 }
 
 export function useAuth(): AuthState {
@@ -60,12 +59,11 @@ export function useAuth(): AuthState {
         isAuthenticated: status === "authenticated",
         user: session?.user || null,
         error,
-        isOnboardingCompleted: session?.user?.onboardingCompleted ?? false,
     };
 }
 
 export function useAuthRedirect(redirectTo?: string) {
-    const { isAuthenticated, isLoading, isOnboardingCompleted } = useAuth();
+    const { isAuthenticated, isLoading } = useAuth();
     const router = useRouter();
 
     useEffect(() => {
@@ -76,15 +74,10 @@ export function useAuthRedirect(redirectTo?: string) {
             return;
         }
 
-        if (isAuthenticated && !isOnboardingCompleted) {
-            router.push("/onboarding");
-            return;
-        }
-
         if (redirectTo) {
             router.push(redirectTo);
         }
-    }, [isAuthenticated, isLoading, isOnboardingCompleted, router, redirectTo]);
+    }, [isAuthenticated, isLoading, router, redirectTo]);
 }
 
 export function useRequireAuth() {

@@ -1,5 +1,7 @@
 # Authentication System Improvements
 
+> **Note**: This documentation references onboarding functionality that has been removed from the current implementation. The onboarding flow and related features are no longer active.
+
 This document outlines the comprehensive authentication system improvements made to the Craft.js application.
 
 ## 🚀 What's New

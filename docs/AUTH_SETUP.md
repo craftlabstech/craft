@@ -1,5 +1,7 @@
 # Craft.js Authentication Setup
 
+> **Note**: This documentation references onboarding functionality that has been removed from the current implementation. The onboarding flow and related features are no longer active.
+
 This guide will help you set up the improved authentication system with PostgreSQL, Prisma, NextAuth v4, and Resend.
 
 ## Prerequisites

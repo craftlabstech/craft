@@ -19,7 +19,7 @@ export async function sendOTPEmail(email: string, url: string, emailType: 'signi
     // Use circuit breaker for email service
     await emailServiceBreaker.execute(async () => {
       const result = await resend.emails.send({
-        from: process.env.EMAIL_FROM || 'onboarding@resend.dev',
+        from: process.env.EMAIL_FROM || 'support@resend.dev',
         to: email,
         subject: emailType === 'password-reset' ? 'Reset your password' : 'Sign in to Craft',
         html: generateEmailTemplate(url, emailType),
