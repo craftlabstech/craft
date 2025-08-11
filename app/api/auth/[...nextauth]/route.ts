@@ -9,7 +9,7 @@ const handler = async (req: NextRequest, context: { params: Promise<{ nextauth: 
         console.error("NextAuth error:", error);
 
         // Handle database-related errors
-        if (error && typeof error === 'object' && 'code' in error && 
+        if (error && typeof error === 'object' && 'code' in error &&
             (error.code === 'P1001' || error.code === 'P2021')) {
             // Redirect to database setup page
             const url = new URL('/auth/database-setup', req.url);
