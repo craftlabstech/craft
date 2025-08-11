@@ -82,7 +82,6 @@ export async function POST(request: NextRequest) {
                     name: name?.trim() || null,
                     image: profilePictureUrl || null,
                     emailVerified: null, // Don't auto-verify for password signup
-                    onboardingCompleted: false,
                 },
                 select: {
                     id: true,

@@ -65,7 +65,7 @@ export default function SignUpForm() {
     const checkSession = async () => {
       const session = await getSession();
       if (session && !error) {
-        router.push(callbackUrl || "/onboarding");
+        router.push(callbackUrl || "/");
       }
     };
 
@@ -383,8 +383,8 @@ export default function SignUpForm() {
 
             <div className="space-y-4 mb-8">
               <p className="text-muted-foreground">
-                Your account has been created successfully. You&apos;re being
-                redirected to complete your onboarding.
+                Your account has been created successfully. You can now start
+                using the application.
               </p>
             </div>
 

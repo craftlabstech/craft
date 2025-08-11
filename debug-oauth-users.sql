@@ -1,4 +1,4 @@
--- Test script to check onboarding status for OAuth users
+-- Test script to check user status for OAuth users
 -- Run this in your database to see current user states
 
 SELECT 
@@ -6,7 +6,9 @@ SELECT
     email,
     name,
     "emailVerified",
-    "onboardingCompleted",
+    bio,
+    occupation,
+    company,
     "createdAt",
     "updatedAt"
 FROM "User"
@@ -17,8 +19,10 @@ LIMIT 10;
 -- Check accounts table to see OAuth connections
 SELECT 
     u.email,
-    u."onboardingCompleted",
     u."emailVerified",
+    u.bio,
+    u.occupation,
+    u.company,
     a.provider,
     a."providerAccountId",
     a."createdAt"

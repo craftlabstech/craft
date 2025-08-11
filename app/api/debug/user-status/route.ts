@@ -3,7 +3,7 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
-// Debug endpoint to check and optionally reset onboarding status
+// Debug endpoint to check user status
 export async function GET(request: NextRequest) {
     try {
         const session = await getServerSession(authOptions);
@@ -20,7 +20,10 @@ export async function GET(request: NextRequest) {
                 email: true,
                 name: true,
                 emailVerified: true,
-                onboardingCompleted: true,
+                bio: true,
+                occupation: true,
+                company: true,
+                image: true,
                 createdAt: true,
                 updatedAt: true,
             },
@@ -41,7 +44,6 @@ export async function GET(request: NextRequest) {
             sessionData: {
                 id: session.user.id,
                 email: session.user.email,
-                onboardingCompleted: session.user.onboardingCompleted,
                 emailVerified: session.user.emailVerified,
             }
         });
@@ -51,7 +53,7 @@ export async function GET(request: NextRequest) {
     }
 }
 
-// Reset onboarding status for testing
+// Reset user profile fields for testing
 export async function POST(request: NextRequest) {
     try {
         const session = await getServerSession(authOptions);
@@ -60,11 +62,10 @@ export async function POST(request: NextRequest) {
             return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
         }
 
-        // Reset onboarding status
+        // Reset profile fields
         const user = await prisma.user.update({
             where: { id: session.user.id },
             data: {
-                onboardingCompleted: false,
                 bio: null,
                 occupation: null,
                 company: null,
@@ -72,11 +73,13 @@ export async function POST(request: NextRequest) {
         });
 
         return NextResponse.json({
-            message: 'Onboarding status reset',
+            message: 'Profile fields reset',
             user: {
                 id: user.id,
                 email: user.email,
-                onboardingCompleted: user.onboardingCompleted,
+                bio: user.bio,
+                occupation: user.occupation,
+                company: user.company,
             }
         });
     } catch (error) {

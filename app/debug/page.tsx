@@ -23,7 +23,7 @@ export default function DebugPage() {
     }
   };
 
-  const resetOnboarding = async () => {
+  const resetProfile = async () => {
     setLoading(true);
     try {
       const response = await fetch("/api/debug/user-status", {
@@ -34,7 +34,7 @@ export default function DebugPage() {
       // Refresh the status
       await checkUserStatus();
     } catch (error) {
-      console.error("Error resetting onboarding:", error);
+      console.error("Error resetting profile:", error);
     } finally {
       setLoading(false);
     }
@@ -52,7 +52,7 @@ export default function DebugPage() {
     <div className="container mx-auto p-6">
       <Card>
         <CardHeader>
-          <CardTitle>Debug: OAuth Onboarding Status</CardTitle>
+          <CardTitle>Debug: User Status</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
@@ -67,11 +67,11 @@ export default function DebugPage() {
               Check Database Status
             </Button>
             <Button
-              onClick={resetOnboarding}
+              onClick={resetProfile}
               disabled={loading}
               variant="destructive"
             >
-              Reset Onboarding Status
+              Reset Profile Fields
             </Button>
           </div>
 
