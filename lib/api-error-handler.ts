@@ -457,6 +457,7 @@ class RedisRateLimitStore implements RateLimitStore {
 
 // Global rate limit store - defaults to memory, can be configured for Redis
 let rateLimitStore: RateLimitStore = new MemoryRateLimitStore();
+let fallbackStore: RateLimitStore = new MemoryRateLimitStore();
 let isStoreInitialized = false;
 
 /**
@@ -532,8 +533,22 @@ export async function checkRateLimit(
         return current.count <= limit;
     } catch (error) {
         console.error('Rate limit check error:', error);
-        // Fail open - allow the request if rate limiting fails
-        return true;
+
+        // Fallback to in-memory rate limiting
+        try {
+            let current = await fallbackStore.get(identifier);
+            if (!current || now - current.lastReset > windowMs) {
+                current = { count: 0, lastReset: now, windowMs };
+            }
+            current.count++;
+            await fallbackStore.set(identifier, current);
+            console.warn('Using in-memory rate limiting fallback for identifier:', identifier);
+            return current.count <= limit;
+        } catch (fallbackError) {
+            console.error('Fallback rate limit check error:', fallbackError);
+            // Final fallback - fail open to prevent denial of service
+            return true;
+        }
     }
 }
 
@@ -557,7 +572,22 @@ export async function getRateLimitStatus(
         };
     } catch (error) {
         console.error('Rate limit status error:', error);
-        return { remaining: limit, resetTime: Date.now() + windowMs };
+
+        // Fallback to in-memory rate limiting status
+        try {
+            const current = await fallbackStore.get(identifier);
+            if (!current) {
+                return { remaining: limit, resetTime: Date.now() + windowMs };
+            }
+            console.warn('Using fallback store for rate limit status for identifier:', identifier);
+            return {
+                remaining: Math.max(0, limit - current.count),
+                resetTime: current.lastReset + windowMs,
+            };
+        } catch (fallbackError) {
+            console.error('Fallback rate limit status error:', fallbackError);
+            return { remaining: limit, resetTime: Date.now() + windowMs };
+        }
     }
 }
 
@@ -573,6 +603,13 @@ export async function resetRateLimit(identifier: string): Promise<void> {
         await rateLimitStore.delete(identifier);
     } catch (error) {
         console.error('Rate limit reset error:', error);
+    }
+
+    // Also reset in fallback store to ensure consistency
+    try {
+        await fallbackStore.delete(identifier);
+    } catch (error) {
+        console.error('Fallback rate limit reset error:', error);
     }
 }
 
