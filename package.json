@@ -12,6 +12,7 @@
     "db:studio": "prisma studio",
     "db:push": "prisma db push",
     "db:reset": "prisma migrate reset",
+    "db:deploy": "node scripts/deploy-db.js",
     "postinstall": "prisma generate",
     "test:redis": "npx tsx scripts/test-redis.ts"
   },
