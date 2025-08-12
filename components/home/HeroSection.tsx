@@ -525,6 +525,30 @@ export default function HeroSection() {
               <div className="w-1 h-1 bg-current rounded-full text-muted-foreground inline-block align-middle"></div>
               <span className="text-xs text-muted-foreground">Pay Per Use</span>
             </div>
+
+            {/* Call to Action for Non-Authenticated Users */}
+            {/* {!session && (
+              <div className="mt-8 text-center max-w-md mx-auto">
+                <p className="text-sm text-muted-foreground mb-4">
+                  Sign up to save your projects and access advanced features
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <Link href="/auth/signup">
+                    <Button className="w-full sm:w-auto px-6 py-2">
+                      Get Started Free
+                    </Button>
+                  </Link>
+                  <Link href="/auth/signin">
+                    <Button
+                      variant="outline"
+                      className="w-full sm:w-auto px-6 py-2"
+                    >
+                      Sign In
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            )} */}
           </div>
         </div>
       </div>
