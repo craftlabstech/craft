@@ -1,3 +1,5 @@
+import { ALLOWED_IMAGE_FILE_TYPES, MAX_IMAGE_FILE_SIZE } from "../utils";
+
 export interface ValidationResult {
     isValid: boolean;
     error?: string;
@@ -75,17 +77,14 @@ export class AuthValidator {
     }
 
     static validateImageFile(file: File): ValidationResult {
-        const allowedTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
-        const maxSize = 5 * 1024 * 1024; // 5MB
-
-        if (!allowedTypes.includes(file.type)) {
+        if (!ALLOWED_IMAGE_FILE_TYPES.includes(file.type as any)) {
             return {
                 isValid: false,
                 error: "Please upload a valid image file (JPEG, PNG, GIF, or WebP)",
             };
         }
 
-        if (file.size > maxSize) {
+        if (file.size > MAX_IMAGE_FILE_SIZE) {
             return {
                 isValid: false,
                 error: "Image size must be less than 5MB",

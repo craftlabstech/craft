@@ -507,7 +507,9 @@ export function configureRateLimitStore(redisClient?: RedisLike): void {
     } else {
         console.warn('Rate limiting using in-memory store - not recommended for production');
     }
-} export async function checkRateLimit(
+}
+
+export async function checkRateLimit(
     identifier: string,
     limit: number = 5,
     windowMs: number = 60000 // 1 minute

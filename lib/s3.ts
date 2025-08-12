@@ -1,6 +1,7 @@
 import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
 import path from "path";
+import { ALLOWED_IMAGE_FILE_TYPES, MAX_IMAGE_FILE_SIZE } from "./utils";
 
 // Initialize S3 client
 const s3Client = new S3Client({
@@ -36,7 +37,7 @@ export class S3Service {
                     Key: key,
                     Body: file,
                     ContentType: contentType,
-                    // Removed ACL parameter - rely on bucket policy for public access
+                    ACL: "public-read", // Explicitly set ACL for public access
                 },
             });
 
@@ -90,14 +91,11 @@ export class S3Service {
      * Validate file type and size for profile pictures
      */
     static validateProfilePicture(file: Express.Multer.File): boolean {
-        const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-        const maxSize = 5 * 1024 * 1024; // 5MB
-
-        if (!allowedTypes.includes(file.mimetype)) {
-            throw new Error('Invalid file type. Only JPEG, PNG, and WebP are allowed.');
+        if (!ALLOWED_IMAGE_FILE_TYPES.includes(file.mimetype as any)) {
+            throw new Error('Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.');
         }
 
-        if (file.size > maxSize) {
+        if (file.size > MAX_IMAGE_FILE_SIZE) {
             throw new Error('File too large. Maximum size is 5MB.');
         }
 

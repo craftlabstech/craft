@@ -4,6 +4,7 @@ import React, { useState, useRef } from "react";
 import NextImage from "next/image";
 import { Upload, Trash2, Camera, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ALLOWED_IMAGE_FILE_TYPES, MAX_IMAGE_FILE_SIZE } from "@/lib/utils";
 
 interface SignupProfilePictureUploadProps {
   className?: string;
@@ -28,15 +29,13 @@ export default function SignupProfilePictureUpload({
 
   const validateFile = (file: File): string | null => {
     // Check file size (5MB max)
-    const maxSize = 5 * 1024 * 1024; // 5MB in bytes
-    if (file.size > maxSize) {
+    if (file.size > MAX_IMAGE_FILE_SIZE) {
       return "File size must be less than 5MB";
     }
 
     // Check file type
-    const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
-    if (!allowedTypes.includes(file.type)) {
-      return "File must be JPEG, PNG, or WebP format";
+    if (!ALLOWED_IMAGE_FILE_TYPES.includes(file.type as any)) {
+      return "File must be JPEG, PNG, GIF, or WebP format";
     }
 
     return null;
