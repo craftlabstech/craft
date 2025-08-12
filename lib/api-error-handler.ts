@@ -457,7 +457,7 @@ class RedisRateLimitStore implements RateLimitStore {
 
 // Global rate limit store - defaults to memory, can be configured for Redis
 let rateLimitStore: RateLimitStore = new MemoryRateLimitStore();
-let fallbackStore: RateLimitStore = new MemoryRateLimitStore();
+const fallbackStore: RateLimitStore = new MemoryRateLimitStore();
 let isStoreInitialized = false;
 
 /**
