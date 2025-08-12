@@ -77,7 +77,7 @@ export class AuthValidator {
     }
 
     static validateImageFile(file: File): ValidationResult {
-        if (!ALLOWED_IMAGE_FILE_TYPES.includes(file.type as any)) {
+        if (!(ALLOWED_IMAGE_FILE_TYPES as readonly string[]).includes(file.type)) {
             return {
                 isValid: false,
                 error: "Please upload a valid image file (JPEG, PNG, GIF, or WebP)",

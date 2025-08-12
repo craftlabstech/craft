@@ -91,7 +91,7 @@ export class S3Service {
      * Validate file type and size for profile pictures
      */
     static validateProfilePicture(file: Express.Multer.File): boolean {
-        if (!ALLOWED_IMAGE_FILE_TYPES.includes(file.mimetype as any)) {
+        if (!(ALLOWED_IMAGE_FILE_TYPES as readonly string[]).includes(file.mimetype)) {
             throw new Error('Invalid file type. Only JPEG, PNG, GIF, and WebP are allowed.');
         }
 

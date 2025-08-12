@@ -34,7 +34,7 @@ export default function SignupProfilePictureUpload({
     }
 
     // Check file type
-    if (!ALLOWED_IMAGE_FILE_TYPES.includes(file.type as any)) {
+    if (!(ALLOWED_IMAGE_FILE_TYPES as readonly string[]).includes(file.type)) {
       return "File must be JPEG, PNG, GIF, or WebP format";
     }
 
