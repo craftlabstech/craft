@@ -3,6 +3,10 @@ export interface ValidationResult {
     error?: string;
 }
 
+// Password special character regex - includes common punctuation and symbols
+// Covers: ! @ # $ % ^ & * ( ) _ + - = [ ] { } ; ' : " \ | , . < > / ?
+const PASSWORD_SPECIAL_CHAR_REGEX = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/;
+
 export class AuthValidator {
     static validateEmail(email: string): ValidationResult {
         if (!email) {
@@ -120,7 +124,7 @@ export class AuthValidator {
         }
 
         // Check for at least one special character
-        if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)) {
+        if (!PASSWORD_SPECIAL_CHAR_REGEX.test(password)) {
             return { isValid: false, error: "Password must contain at least one special character" };
         }
 

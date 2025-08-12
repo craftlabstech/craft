@@ -1,5 +1,6 @@
 import { S3Client, DeleteObjectCommand } from "@aws-sdk/client-s3";
 import { Upload } from "@aws-sdk/lib-storage";
+import path from "path";
 
 // Initialize S3 client
 const s3Client = new S3Client({
@@ -75,7 +76,13 @@ export class S3Service {
      */
     static generateProfilePictureKey(userId: string, originalName: string): string {
         const timestamp = Date.now();
-        const extension = originalName.split('.').pop() || 'jpg';
+        // Use path.extname for safer extraction, then sanitize
+        let extension = path.extname(originalName).replace('.', '').toLowerCase();
+        // Only allow certain extensions
+        const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
+        if (!allowedExtensions.includes(extension)) {
+            extension = 'jpg';
+        }
         return `profile-pictures/${userId}/${timestamp}.${extension}`;
     }
 

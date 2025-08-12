@@ -30,6 +30,10 @@ Copy `.env.example` to `.env` and fill in your values:
 cp .env.example .env
 ```
 
+#### Optional Environment Variables
+
+- `DISPOSABLE_EMAIL_DOMAINS`: Comma-separated list of disposable email domains to block during registration (optional, uses built-in defaults if not set)
+
 ### 3. Google OAuth Setup
 
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)

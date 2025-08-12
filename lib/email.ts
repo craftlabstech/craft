@@ -3,6 +3,27 @@ import { emailServiceBreaker, ExternalServiceError } from './api-error-handler';
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+/**
+ * Get disposable email domains from environment variable or return default list
+ * Environment variable: DISPOSABLE_EMAIL_DOMAINS (comma-separated list)
+ */
+function getDisposableEmailDomains(): string[] {
+  const envDomains = process.env.DISPOSABLE_EMAIL_DOMAINS;
+
+  if (envDomains) {
+    return envDomains.split(',').map(domain => domain.trim().toLowerCase());
+  }
+
+  // Default disposable email domains
+  return [
+    '10minutemail.com',
+    'tempmail.org',
+    'guerrillamail.com',
+    'mailinator.com',
+    'throwaway.email'
+  ];
+}
+
 export async function sendOTPEmail(email: string, url: string, emailType: 'signin' | 'password-reset' = 'signin') {
   try {
     // Validate inputs
@@ -124,13 +145,7 @@ export async function validateEmailDeliverability(email: string): Promise<boolea
     }
 
     // Check for common disposable email domains
-    const disposableEmailDomains = [
-      '10minutemail.com',
-      'tempmail.org',
-      'guerrillamail.com',
-      'mailinator.com',
-      'throwaway.email'
-    ];
+    const disposableEmailDomains = getDisposableEmailDomains();
 
     const domain = email.split('@')[1]?.toLowerCase();
     if (disposableEmailDomains.includes(domain)) {

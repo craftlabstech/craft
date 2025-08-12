@@ -190,8 +190,9 @@ export default function SignUpForm() {
 
     setIsUploadingPicture(true);
     try {
-      // Generate a temporary user ID for the upload
-      const tempUserId = window.crypto.randomUUID();
+      // Generate a temporary user ID for the upload (timestamp + random string)
+      const tempUserId =
+        Date.now() + "-" + Math.random().toString(36).substring(2, 9);
 
       const formData = new FormData();
       formData.append("file", profilePictureFile);

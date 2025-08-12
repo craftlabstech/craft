@@ -8,9 +8,7 @@ import { PrismaClientKnownRequestError } from "@prisma/client/runtime/library";
  * Specifically handles cases where database tables don't exist yet
  * 
  * Note: This file uses 'any' types that are required by NextAuth's adapter interface
- * eslint-disable-next-line @typescript-eslint/no-explicit-any
  */
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export function createResilientPrismaAdapter(prisma: PrismaClient): Adapter {
     const baseAdapter = PrismaAdapter(prisma);
 
@@ -67,6 +65,7 @@ export function createResilientPrismaAdapter(prisma: PrismaClient): Adapter {
             }
         },
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         async createUser(user: any) {
             try {
                 return await baseAdapter.createUser!(user);
@@ -77,6 +76,7 @@ export function createResilientPrismaAdapter(prisma: PrismaClient): Adapter {
             }
         },
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         async linkAccount(account: any) {
             try {
                 await baseAdapter.linkAccount!(account);
@@ -86,6 +86,7 @@ export function createResilientPrismaAdapter(prisma: PrismaClient): Adapter {
             }
         },
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         async createSession(session: any) {
             try {
                 return await baseAdapter.createSession!(session);
@@ -103,6 +104,7 @@ export function createResilientPrismaAdapter(prisma: PrismaClient): Adapter {
             }
         },
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         async updateUser(user: any) {
             try {
                 return await baseAdapter.updateUser!(user);
@@ -112,6 +114,7 @@ export function createResilientPrismaAdapter(prisma: PrismaClient): Adapter {
             }
         },
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         async updateSession(session: any) {
             try {
                 return await baseAdapter.updateSession!(session);
@@ -130,6 +133,7 @@ export function createResilientPrismaAdapter(prisma: PrismaClient): Adapter {
             }
         },
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         async createVerificationToken(verificationToken: any) {
             try {
                 return await baseAdapter.createVerificationToken!(verificationToken);
@@ -139,6 +143,7 @@ export function createResilientPrismaAdapter(prisma: PrismaClient): Adapter {
             }
         },
 
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         async useVerificationToken(identifier_token: any) {
             try {
                 return await baseAdapter.useVerificationToken!(identifier_token);

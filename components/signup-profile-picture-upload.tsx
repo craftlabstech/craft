@@ -74,8 +74,9 @@ export default function SignupProfilePictureUpload({
 
   const handleRemoveImage = () => {
     // Clean up object URL to prevent memory leaks
-    if (previewUrl && previewUrl.startsWith("blob:")) {
-      URL.revokeObjectURL(previewUrl);
+    const urlToRevoke = previewUrl;
+    if (urlToRevoke && urlToRevoke.startsWith("blob:")) {
+      URL.revokeObjectURL(urlToRevoke);
     }
 
     // Note: selectedFile state removed as it's only passed to parent

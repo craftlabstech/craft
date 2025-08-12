@@ -356,38 +356,222 @@ function handleNextAuthError(error: Error): NextResponse {
 }
 
 // Rate limiting utilities
-const rateLimitMap = new Map<string, { count: number; lastReset: number }>();
+interface RateLimitData {
+    count: number;
+    lastReset: number;
+    windowMs: number;
+}
 
-export function checkRateLimit(
+interface RateLimitStore {
+    get(identifier: string): Promise<RateLimitData | null>;
+    set(identifier: string, data: RateLimitData): Promise<void>;
+    delete(identifier: string): Promise<void>;
+}
+
+interface RedisLike {
+    get(key: string): Promise<string | null>;
+    setex(key: string, seconds: number, value: string): Promise<string | void>;
+    del(key: string): Promise<number | void>;
+    ping(): Promise<string>;
+}
+
+// In-memory store with cleanup (fallback for development)
+class MemoryRateLimitStore implements RateLimitStore {
+    private store = new Map<string, RateLimitData>();
+    private cleanupInterval: NodeJS.Timeout;
+
+    constructor() {
+        // Clean up expired entries every 5 minutes
+        this.cleanupInterval = setInterval(() => {
+            this.cleanup();
+        }, 5 * 60 * 1000);
+    }
+
+    async get(identifier: string): Promise<RateLimitData | null> {
+        const data = this.store.get(identifier);
+        if (!data) return null;
+
+        // Check if expired
+        if (Date.now() - data.lastReset > data.windowMs) {
+            this.store.delete(identifier);
+            return null;
+        }
+
+        return data;
+    }
+
+    async set(identifier: string, data: RateLimitData): Promise<void> {
+        this.store.set(identifier, data);
+    }
+
+    async delete(identifier: string): Promise<void> {
+        this.store.delete(identifier);
+    }
+
+    private cleanup(): void {
+        const now = Date.now();
+        for (const [key, data] of this.store.entries()) {
+            if (now - data.lastReset > data.windowMs) {
+                this.store.delete(key);
+            }
+        }
+    }
+
+    destroy(): void {
+        clearInterval(this.cleanupInterval);
+        this.store.clear();
+    }
+}
+
+// Redis store for production (requires redis client)
+class RedisRateLimitStore implements RateLimitStore {
+    constructor(private redis: RedisLike) { }
+
+    async get(identifier: string): Promise<RateLimitData | null> {
+        try {
+            const data = await this.redis.get(`rate_limit:${identifier}`);
+            return data ? JSON.parse(data) : null;
+        } catch (error) {
+            console.error('Redis rate limit get error:', error);
+            return null;
+        }
+    }
+
+    async set(identifier: string, data: RateLimitData): Promise<void> {
+        try {
+            const ttl = Math.ceil(data.windowMs / 1000);
+            await this.redis.setex(`rate_limit:${identifier}`, ttl, JSON.stringify(data));
+        } catch (error) {
+            console.error('Redis rate limit set error:', error);
+        }
+    }
+
+    async delete(identifier: string): Promise<void> {
+        try {
+            await this.redis.del(`rate_limit:${identifier}`);
+        } catch (error) {
+            console.error('Redis rate limit delete error:', error);
+        }
+    }
+}
+
+// Global rate limit store - defaults to memory, can be configured for Redis
+let rateLimitStore: RateLimitStore = new MemoryRateLimitStore();
+let isStoreInitialized = false;
+
+/**
+ * Initialize the rate limit store lazily
+ */
+async function ensureStoreInitialized(): Promise<void> {
+    if (isStoreInitialized) return;
+
+    try {
+        // Try to initialize Redis if environment variables are available
+        const redisUrl = process.env.UPSTASH_REDIS_REST_URL;
+        const redisToken = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+        if (redisUrl && redisToken) {
+            const { Redis } = await import('@upstash/redis');
+            const redis = new Redis({ url: redisUrl, token: redisToken }) as RedisLike;
+
+            // Test connection
+            await redis.ping();
+            rateLimitStore = new RedisRateLimitStore(redis);
+            console.log('✅ Rate limiting configured with Upstash Redis');
+        } else {
+            console.log('ℹ️ Using in-memory rate limiting (Redis not configured)');
+        }
+    } catch (error) {
+        console.warn('⚠️ Failed to initialize Redis, using memory store:', error instanceof Error ? error.message : 'Unknown error');
+    }
+
+    isStoreInitialized = true;
+}
+
+/**
+ * Configure rate limiting with a persistent store (e.g., Redis)
+ * Call this during app initialization for production environments
+ * 
+ * Example usage with Redis:
+ * ```typescript
+ * import { Redis } from 'ioredis';
+ * const redis = new Redis(process.env.REDIS_URL);
+ * configureRateLimitStore(redis);
+ * ```
+ */
+export function configureRateLimitStore(redisClient?: RedisLike): void {
+    if (redisClient) {
+        rateLimitStore = new RedisRateLimitStore(redisClient);
+        isStoreInitialized = true;
+        console.log('Rate limiting configured with Redis store');
+    } else {
+        console.warn('Rate limiting using in-memory store - not recommended for production');
+    }
+} export async function checkRateLimit(
     identifier: string,
     limit: number = 5,
     windowMs: number = 60000 // 1 minute
-): boolean {
+): Promise<boolean> {
+    // Ensure store is initialized before first use
+    await ensureStoreInitialized();
+
     const now = Date.now();
-    const current = rateLimitMap.get(identifier) || { count: 0, lastReset: now };
 
-    // Reset if window has passed
-    if (now - current.lastReset > windowMs) {
-        current.count = 0;
-        current.lastReset = now;
+    try {
+        let current = await rateLimitStore.get(identifier);
+
+        if (!current || now - current.lastReset > windowMs) {
+            current = { count: 0, lastReset: now, windowMs };
+        }
+
+        current.count++;
+        await rateLimitStore.set(identifier, current);
+
+        return current.count <= limit;
+    } catch (error) {
+        console.error('Rate limit check error:', error);
+        // Fail open - allow the request if rate limiting fails
+        return true;
     }
-
-    current.count++;
-    rateLimitMap.set(identifier, current);
-
-    return current.count <= limit;
 }
 
-export function getRateLimitStatus(identifier: string): { remaining: number; resetTime: number } {
-    const current = rateLimitMap.get(identifier);
-    if (!current) {
-        return { remaining: 5, resetTime: Date.now() + 60000 };
-    }
+export async function getRateLimitStatus(
+    identifier: string,
+    limit: number = 5,
+    windowMs: number = 60000
+): Promise<{ remaining: number; resetTime: number }> {
+    // Ensure store is initialized before first use
+    await ensureStoreInitialized();
 
-    return {
-        remaining: Math.max(0, 5 - current.count),
-        resetTime: current.lastReset + 60000,
-    };
+    try {
+        const current = await rateLimitStore.get(identifier);
+        if (!current) {
+            return { remaining: limit, resetTime: Date.now() + windowMs };
+        }
+
+        return {
+            remaining: Math.max(0, limit - current.count),
+            resetTime: current.lastReset + windowMs,
+        };
+    } catch (error) {
+        console.error('Rate limit status error:', error);
+        return { remaining: limit, resetTime: Date.now() + windowMs };
+    }
+}
+
+/**
+ * Reset rate limit for a specific identifier
+ * Useful for clearing rate limits after successful verification, etc.
+ */
+export async function resetRateLimit(identifier: string): Promise<void> {
+    // Ensure store is initialized before first use
+    await ensureStoreInitialized();
+
+    try {
+        await rateLimitStore.delete(identifier);
+    } catch (error) {
+        console.error('Rate limit reset error:', error);
+    }
 }
 
 // Validation utilities
