@@ -30,7 +30,7 @@ const Footer = memo(function Footer() {
             </p>
             <div className="flex gap-3 pt-2">
               <a
-                href="https://github.com/sudheerdotai/craft.js"
+                href="https://github.com/craftlabstech/craft"
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="GitHub"

@@ -1,5 +1,5 @@
 {
-    "buildCommand": "prisma generate && next build",
+    "buildCommand": "npm run db:deploy && prisma generate && next build",
     "functions": {
         "app/api/**/*.ts": {
             "maxDuration": 30
