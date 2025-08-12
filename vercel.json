@@ -1,0 +1,11 @@
+{
+    "buildCommand": "npm run db:deploy && prisma generate && next build",
+    "functions": {
+        "app/api/**/*.ts": {
+            "maxDuration": 30
+        }
+    },
+    "env": {
+        "PRISMA_GENERATE_DATAPROXY": "true"
+    }
+}

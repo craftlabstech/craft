@@ -4,7 +4,7 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import { Settings, LogOut, User, Monitor, Sun, Moon } from "lucide-react";
 import Link from "next/link";
 import NextImage from "next/image";
-import { useSession, signIn, signOut } from "next-auth/react";
+import { useSession, signOut } from "next-auth/react";
 import { useTheme } from "../theme-provider";
 
 export default function Header() {
@@ -31,10 +31,6 @@ export default function Header() {
 
   const handleImageError = useCallback(() => {
     setImageError(true);
-  }, []);
-
-  const handleSignIn = useCallback(() => {
-    signIn("google", { redirectTo: "/" });
   }, []);
 
   const handleSignOut = useCallback(() => {
@@ -85,10 +81,10 @@ export default function Header() {
         {/* Logo */}
         <div className="flex items-center">
           <Link href="/" className="flex items-center gap-2">
-            <span className="text-lg sm:text-2xl font-roboto tracking-wider font-medium text-foreground">
+            <span className="text-lg sm:text-2xl font-roboto tracking-tight font-semibold text-foreground">
               Craft
             </span>
-            <span className="px-3 py-0.5 rounded-full border border-border text-xs font-light text-muted-foreground uppercase tracking-wider align-middle">
+            <span className="px-2 py-0.5 rounded-full border border-border text-xs font-light text-muted-foreground uppercase tracking-wider">
               Beta
             </span>
           </Link>
@@ -254,12 +250,12 @@ export default function Header() {
               )}
             </div>
           ) : (
-            /* Theme switcher and sign in button when not logged in */
+            /* Theme switcher and auth buttons when not logged in */
             <>
               {/* Single theme toggle button */}
               <button
                 onClick={cycleTheme}
-                className="p-1.5 rounded-full transition-colors hover:border-2 bg-muted/50 hover:bg-muted hover:border-primary text-muted-foreground hover:text-foreground"
+                className="p-1.5 rounded-full transition-colors border border-transparent bg-muted/50 hover:bg-muted hover:border-border text-muted-foreground hover:text-foreground"
                 aria-label={`Current theme: ${theme}. Click to switch theme`}
                 title={`Current: ${
                   theme.charAt(0).toUpperCase() + theme.slice(1)
@@ -272,13 +268,19 @@ export default function Header() {
                 {theme === "dark" && <Moon className="h-3 w-3 sm:h-4 sm:w-4" />}
               </button>
 
-              {/* Sign in button */}
-              <button
-                onClick={handleSignIn}
-                className="text-xs text-center sm:text-sm rounded-full bg-primary text-primary-foreground border-2 border-primary hover:border-primary/80 px-3 sm:px-4 py-1.5 sm:py-2 font-medium transition-all duration-200 hover:opacity-90 focus:outline-none cursor-pointer"
-              >
-                <span>Sign in</span>
-              </button>
+              {/* Sign in button - outlined style */}
+              <Link href="/auth/signin">
+                <button className="text-xs text-center sm:text-sm rounded-full border border-border text-foreground hover:bg-muted hover:text-foreground hover:border-border px-3 sm:px-4 py-1.5 sm:py-2 font-medium transition-all duration-200 focus:outline-none cursor-pointer">
+                  <span>Sign in</span>
+                </button>
+              </Link>
+
+              {/* Sign up button - filled style */}
+              <Link href="/auth/signup">
+                <button className="text-xs text-center sm:text-sm rounded-full bg-primary text-primary-foreground border border-primary hover:bg-primary/90 hover:border-primary/80 px-3 sm:px-4 py-1.5 sm:py-2 font-medium transition-all duration-200 focus:outline-none cursor-pointer">
+                  <span>Sign up</span>
+                </button>
+              </Link>
             </>
           )}
         </div>
