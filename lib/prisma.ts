@@ -33,8 +33,8 @@ export async function checkDatabaseTables() {
         // Try to query a basic table to see if schema exists
         await prisma.user.findFirst({ take: 1 })
         return { tablesExist: true, error: null }
-    } catch (error: any) {
-        if (error.code === 'P2021') {
+    } catch (error: unknown) {
+        if (error && typeof error === 'object' && 'code' in error && error.code === 'P2021') {
             console.warn('Database tables do not exist - please run migrations')
             return {
                 tablesExist: false,
@@ -43,7 +43,7 @@ export async function checkDatabaseTables() {
         }
         return {
             tablesExist: false,
-            error: error.message || 'Unknown database error'
+            error: error instanceof Error ? error.message : 'Unknown database error'
         }
     }
 }

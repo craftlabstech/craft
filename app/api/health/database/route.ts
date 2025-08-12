@@ -20,7 +20,7 @@ export async function GET() {
         return NextResponse.json(status, {
             status: isHealthy ? 200 : 503
         })
-    } catch (error) {
+    } catch {
         return NextResponse.json(
             {
                 database: {
