@@ -54,6 +54,12 @@ model User {
   accounts            Account[]
   sessions            Session[]
   passwordResetTokens PasswordResetToken[]
+
+  // AI chat-related relations
+  projects Project[]
+  chats    Chat[]
+
+  @@index([email])
 }
 
 model PasswordResetToken {
@@ -76,4 +82,89 @@ model VerificationToken {
   expires    DateTime
 
   @@unique([identifier, token])
+}
+
+// AI Coding Assistant models
+model Project {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  framework   String   @default("nextjs") // nextjs, react, vue, etc.
+  template    String? // starter template used
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  userId String
+  user   User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chats  Chat[]
+  files  ProjectFile[]
+
+  @@index([userId])
+  @@index([updatedAt])
+}
+
+model Chat {
+  id        String   @id @default(cuid())
+  title     String? // Generated from first message or user-set
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  userId    String
+  user      User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  projectId String? // Optional - chat can be tied to a project
+  project   Project?      @relation(fields: [projectId], references: [id], onDelete: SetNull)
+  messages  ChatMessage[]
+
+  @@index([userId])
+  @@index([projectId])
+  @@index([updatedAt])
+}
+
+model ChatMessage {
+  id        String      @id @default(cuid())
+  content   String      @db.Text
+  role      MessageRole @default(USER)
+  type      MessageType @default(TEXT)
+  metadata  Json? // For storing code, file paths, etc.
+  createdAt DateTime    @default(now())
+
+  // Relations
+  chatId String
+  chat   Chat   @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
+  @@index([chatId])
+  @@index([createdAt])
+}
+
+model ProjectFile {
+  id        String   @id @default(cuid())
+  path      String // relative path within project
+  content   String   @db.Text
+  language  String // typescript, javascript, css, etc.
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  projectId String
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, path])
+  @@index([projectId])
+}
+
+// Enums
+enum MessageRole {
+  USER // User message
+  ASSISTANT // AI assistant response
+  SYSTEM // System message
+}
+
+enum MessageType {
+  TEXT // Regular text message
+  CODE // Code generation/modification
+  PREVIEW // Preview update
+  ERROR // Error message
+  THINKING // AI thinking/processing
 }
