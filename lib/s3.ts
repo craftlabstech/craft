@@ -37,7 +37,8 @@ export class S3Service {
                     Key: key,
                     Body: file,
                     ContentType: contentType,
-                    ACL: "public-read", // Explicitly set ACL for public access
+                    // Removed ACL parameter - modern S3 buckets often have ACLs disabled
+                    // Public access should be configured via bucket policy instead
                 },
             });
 
